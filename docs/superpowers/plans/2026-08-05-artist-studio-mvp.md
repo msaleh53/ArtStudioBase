@@ -12,6 +12,7 @@
 
 - Spec: `docs/superpowers/specs/2026-08-05-artist-studio-design.md` — all data model field names, enum values, and table names below are copied verbatim from it. Don't rename.
 - Single tenant only: no signup route, no multi-user UI. Every table row is scoped by `user_id = auth.uid()` via RLS.
+- **Discovered during Task 12's review (2026-08-05):** the Drizzle client connects via `DATABASE_URL` as the `postgres` role, which has `rolbypassrls = true` — RLS policies exist and are correctly written (Task 5) but are NOT actually enforced on any Drizzle query. Human-ruled resolution: every Server Action and every page/component that queries the database via `db` must ALSO apply an explicit `.where(eq(<table>.userId, user.id))` (or an `and(...)` combining it with other conditions) as app-level defense-in-depth, in addition to the existing RLS policies. This applies retroactively to Tasks 9-12 (already fixed) and to all remaining tasks (13, 15, 16). Any query that reads or writes a table with a `user_id`/`userId` column must fetch the authenticated user via `createClient()` first and filter/scope by their id — no exceptions.
 - No thumbnail pipeline — store the original upload only, resize via `next/image` at render time.
 - No drag-and-drop kanban — a stage `<select>` per commission card is sufficient.
 - No automated tests except the exhibition date-overlap validation function (per spec's Testing section). All other verification is manual, via the dev server.
