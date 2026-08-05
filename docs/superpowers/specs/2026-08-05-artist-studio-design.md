@@ -16,6 +16,7 @@ A single-tenant, internal-only web app for an independent artist to manage their
   - Chosen over Prisma: lighter runtime and faster cold starts on Vercel serverless (no bundled query-engine binary), and its SQL-like query builder pairs naturally with hand-written RLS policy migrations — Supabase's own workflow is SQL-migration-first, which fits drizzle-kit's model better than Prisma's migration engine.
 - **Auth & authorization**: Supabase Auth (email/password). Every table carries `user_id`, enforced by RLS policies (`user_id = auth.uid()`). No signup UI; the one artist account is created via a seed script.
 - **File storage**: Supabase Storage, one bucket for artwork images, RLS-protected by `user_id` path prefix.
+  - **Note (deliberate scope decision, not an oversight):** the implemented bucket is public-read (`public: true`), not RLS-gated per-request read access — writes remain owner-scoped via a storage RLS policy on the `{user_id}/...` path prefix. Object paths use non-guessable UUIDs, and `next/image` needs a public URL to serve images without signed-URL machinery. For this single-tenant app, a public bucket with UUID paths was judged an acceptable tradeoff over the added complexity of signed URLs.
 - **Images**: store the original upload only, at `{user_id}/{artwork_id}/original.{ext}`. Rendering uses `next/image` for responsive resizing/optimization at request time — no separate thumbnail-generation pipeline.
 - **Styling**: Tailwind CSS + Shadcn UI, restyled with DESIGN.md's tokens (colors, type scale, radius, shadows).
 

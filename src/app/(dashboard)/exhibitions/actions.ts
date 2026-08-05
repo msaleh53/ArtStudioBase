@@ -51,6 +51,13 @@ export async function assignArtwork(exhibitionId: string, artworkId: string) {
     .where(and(eq(exhibitions.id, exhibitionId), eq(exhibitions.userId, user.id)));
   if (!targetExhibition) return { error: "Exhibition not found" };
 
+  // exhibitionArtworks has no user_id column of its own, but scoping the exhibition
+  // lookup below by user.id is still safe: artworkId was already verified above as
+  // owned by user.id, and every exhibitionArtworks row is created exclusively by this
+  // function, which always verifies both the artwork and the exhibition are owned by
+  // the caller before inserting. So any row returned here necessarily belongs to an
+  // exhibition also owned by user.id — this filter can't silently drop a legitimate
+  // overlap check.
   const otherAssignments = await db
     .select({ exhibitionId: exhibitionArtworks.exhibitionId })
     .from(exhibitionArtworks)

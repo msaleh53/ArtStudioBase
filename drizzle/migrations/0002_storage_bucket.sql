@@ -1,3 +1,6 @@
+-- public: true is intentional (deliberate scope decision, not an oversight): images are
+-- practically unguessable via UUID object paths, and a public bucket avoids needing
+-- signed-URL machinery for next/image. Writes remain owner-scoped via the RLS policy below.
 insert into storage.buckets (id, name, public)
 values ('artwork-images', 'artwork-images', true)
 on conflict (id) do nothing;
