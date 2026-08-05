@@ -1,11 +1,17 @@
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { customers } from "@/db/schema";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [customer] = await db.select().from(customers).where(eq(customers.id, id));
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) notFound();
+
+  const [customer] = await db.select().from(customers).where(and(eq(customers.id, id), eq(customers.userId, user.id)));
   if (!customer) notFound();
 
   return (

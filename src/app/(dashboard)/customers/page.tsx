@@ -1,10 +1,16 @@
 import Link from "next/link";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { customers } from "@/db/schema";
 import { NewCustomerForm } from "./new-customer-form";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function CustomersPage() {
-  const rows = await db.select().from(customers);
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const rows = await db.select().from(customers).where(eq(customers.userId, user.id));
 
   return (
     <main className="p-8 max-w-3xl mx-auto">

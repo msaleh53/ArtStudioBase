@@ -2,12 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/db";
 import { artworks } from "@/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { StatusBadge } from "@/components/status-badge";
 import { UploadForm } from "./upload-form";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function ArtworksPage() {
-  const rows = await db.select().from(artworks).orderBy(desc(artworks.createdAt));
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const rows = await db.select().from(artworks).where(eq(artworks.userId, user.id)).orderBy(desc(artworks.createdAt));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
   return (

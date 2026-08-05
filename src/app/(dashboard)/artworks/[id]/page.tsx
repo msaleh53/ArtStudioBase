@@ -1,17 +1,23 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { artworks, printEditions } from "@/db/schema";
 import { PrintEditions } from "./print-editions";
 import { StatusControl } from "./status-control";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function ArtworkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [art] = await db.select().from(artworks).where(eq(artworks.id, id));
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) notFound();
+
+  const [art] = await db.select().from(artworks).where(and(eq(artworks.id, id), eq(artworks.userId, user.id)));
   if (!art) notFound();
 
-  const editions = await db.select().from(printEditions).where(eq(printEditions.artworkId, id));
+  const editions = await db.select().from(printEditions).where(and(eq(printEditions.artworkId, id), eq(printEditions.userId, user.id)));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
   return (

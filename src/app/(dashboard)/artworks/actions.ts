@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { artworks, printEditions, type ArtworkStatus } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -37,11 +37,11 @@ export async function createArtwork(formData: FormData) {
     .upload(path, file);
 
   if (uploadError) {
-    await db.delete(artworks).where(eq(artworks.id, row.id));
+    await db.delete(artworks).where(and(eq(artworks.id, row.id), eq(artworks.userId, user.id)));
     return { error: `Upload failed: ${uploadError.message}` };
   }
 
-  await db.update(artworks).set({ imagePath: path }).where(eq(artworks.id, row.id));
+  await db.update(artworks).set({ imagePath: path }).where(and(eq(artworks.id, row.id), eq(artworks.userId, user.id)));
 
   revalidatePath("/artworks");
   return {};
@@ -52,7 +52,7 @@ export async function updateArtworkStatus(id: string, status: ArtworkStatus) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  await db.update(artworks).set({ status, updatedAt: new Date() }).where(eq(artworks.id, id));
+  await db.update(artworks).set({ status, updatedAt: new Date() }).where(and(eq(artworks.id, id), eq(artworks.userId, user.id)));
   revalidatePath("/artworks");
   revalidatePath(`/artworks/${id}`);
   return {};
@@ -69,6 +69,9 @@ export async function createPrintEdition(artworkId: string, formData: FormData) 
 
   if (!editionSize || editionSize < 1) return { error: "Edition size must be at least 1" };
 
+  const [artwork] = await db.select().from(artworks).where(and(eq(artworks.id, artworkId), eq(artworks.userId, user.id)));
+  if (!artwork) return { error: "Artwork not found" };
+
   await db.insert(printEditions).values({
     userId: user.id,
     artworkId,
@@ -82,13 +85,17 @@ export async function createPrintEdition(artworkId: string, formData: FormData) 
 }
 
 export async function markPrintSold(printEditionId: string) {
-  const [edition] = await db.select().from(printEditions).where(eq(printEditions.id, printEditionId));
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const [edition] = await db.select().from(printEditions).where(and(eq(printEditions.id, printEditionId), eq(printEditions.userId, user.id)));
   if (!edition) return { error: "Print edition not found" };
   if (edition.soldCount >= edition.editionSize) return { error: "Edition is sold out" };
 
   await db.update(printEditions)
     .set({ soldCount: sql`${printEditions.soldCount} + 1` })
-    .where(eq(printEditions.id, printEditionId));
+    .where(and(eq(printEditions.id, printEditionId), eq(printEditions.userId, user.id)));
 
   revalidatePath(`/artworks/${edition.artworkId}`);
   return {};
