@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { artworks, type ArtworkStatus } from "@/db/schema";
+import { artworks, printEditions, type ArtworkStatus } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 
 export async function createArtwork(formData: FormData) {
@@ -55,5 +55,41 @@ export async function updateArtworkStatus(id: string, status: ArtworkStatus) {
   await db.update(artworks).set({ status, updatedAt: new Date() }).where(eq(artworks.id, id));
   revalidatePath("/artworks");
   revalidatePath(`/artworks/${id}`);
+  return {};
+}
+
+export async function createPrintEdition(artworkId: string, formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const description = formData.get("description") as string;
+  const editionSize = Number(formData.get("editionSize"));
+  const price = formData.get("price") as string;
+
+  if (!editionSize || editionSize < 1) return { error: "Edition size must be at least 1" };
+
+  await db.insert(printEditions).values({
+    userId: user.id,
+    artworkId,
+    description: description || null,
+    editionSize,
+    price: price || null,
+  });
+
+  revalidatePath(`/artworks/${artworkId}`);
+  return {};
+}
+
+export async function markPrintSold(printEditionId: string) {
+  const [edition] = await db.select().from(printEditions).where(eq(printEditions.id, printEditionId));
+  if (!edition) return { error: "Print edition not found" };
+  if (edition.soldCount >= edition.editionSize) return { error: "Edition is sold out" };
+
+  await db.update(printEditions)
+    .set({ soldCount: sql`${printEditions.soldCount} + 1` })
+    .where(eq(printEditions.id, printEditionId));
+
+  revalidatePath(`/artworks/${edition.artworkId}`);
   return {};
 }
