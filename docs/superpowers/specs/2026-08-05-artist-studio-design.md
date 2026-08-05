@@ -65,11 +65,23 @@ exhibition_artworks   (join table)
   exhibition_id   uuid fk -> exhibitions
   artwork_id      uuid fk -> artworks
   primary key (exhibition_id, artwork_id)
+
+print_editions
+  id              uuid pk
+  user_id         uuid fk -> auth.users
+  artwork_id      uuid fk -> artworks
+  description     text        -- e.g. "giclee on paper, 11x14"
+  edition_size    int
+  price           numeric
+  sold_count      int, default 0
+  created_at      timestamptz
 ```
+
+A print edition is a reproduction run tied to an original artwork — tracked as a simple stock counter (`sold_count` of `edition_size`), not individual numbered units. An artwork can have zero or more print editions (e.g. a small and a large size run). RLS restricts rows to `user_id = auth.uid()`, same as the other tables.
 
 **Modeling assumption**: concept.md's `Artworks (1) ---< Commissions (1)` relationship is interpreted as: a commission optionally references one artwork (the piece being tracked through production), and an artwork can be attached to at most one commission at a time — enforced via a unique constraint on `commissions.artwork_id`.
 
-Every table (`artworks`, `customers`, `commissions`, `exhibitions`) has an RLS policy restricting rows to `user_id = auth.uid()`.
+Every table (`artworks`, `customers`, `commissions`, `exhibitions`, `print_editions`) has an RLS policy restricting rows to `user_id = auth.uid()`.
 
 ## Feature 1 — Visual Artwork Inventory Catalog
 
@@ -81,6 +93,7 @@ Every table (`artworks`, `customers`, `commissions`, `exhibitions`) has an RLS p
   - Sold → forest green
   (using DESIGN.md's accent palette)
 - Upload form: Server Action validates file type/size, uploads to the Storage bucket at `{user_id}/{artwork_id}/original.{ext}`, then writes the artwork row.
+- Artwork detail view has a "Prints" section listing that artwork's print editions (description, price, `sold_count`/`edition_size`). A "Mark one sold" action increments `sold_count` via Server Action, rejecting once `sold_count === edition_size` (sold out). Adding a new print edition is a small inline form (description, edition size, price).
 
 ## Feature 2 — Commission Pipeline & Client CRM
 
