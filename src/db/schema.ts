@@ -33,6 +33,7 @@ export const customers = pgTable("customers", {
   email: text("email"),
   phone: text("phone"),
   notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const commissions = pgTable("commissions", {
