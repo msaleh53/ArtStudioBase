@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { artworks, commissions, customers, exhibitions } from "@/db/schema";
@@ -29,6 +30,7 @@ export default async function DashboardPage() {
   if (!user) return null;
 
   const todayIso = new Date().toISOString().slice(0, 10);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
   const [
     statusRows,
@@ -55,7 +57,13 @@ export default async function DashboardPage() {
       .where(and(eq(commissions.userId, user.id), eq(customers.userId, user.id))),
     db.select().from(exhibitions).where(eq(exhibitions.userId, user.id)),
     db
-      .select({ id: artworks.id, title: artworks.title, createdAt: artworks.createdAt })
+      .select({
+        id: artworks.id,
+        title: artworks.title,
+        createdAt: artworks.createdAt,
+        imagePath: artworks.imagePath,
+        updatedAt: artworks.updatedAt,
+      })
       .from(artworks)
       .where(eq(artworks.userId, user.id))
       .orderBy(desc(artworks.createdAt))
@@ -96,6 +104,8 @@ export default async function DashboardPage() {
       label: a.title,
       href: `/artworks/${a.id}`,
       createdAt: a.createdAt,
+      imagePath: a.imagePath,
+      updatedAt: a.updatedAt,
     })),
     ...recentCustomers.map((c) => ({
       type: "customer" as const,
@@ -194,9 +204,21 @@ export default async function DashboardPage() {
         <ul className="space-y-2">
           {recentActivity.map((item) => (
             <li key={`${item.type}-${item.id}`}>
-              <Link href={item.href} className="block text-sm">
-                <span className="text-slate-gray">{activityTypeLabels[item.type]}</span>{" "}
-                <span className="text-ink-charcoal">{item.label}</span>
+              <Link href={item.href} className="flex items-center gap-3 text-sm">
+                {item.type === "artwork" && item.imagePath && item.updatedAt && (
+                  <span className="relative w-9 h-9 shrink-0 rounded overflow-hidden bg-canvas-cream">
+                    <Image
+                      src={`${supabaseUrl}/storage/v1/object/public/artwork-images/${item.imagePath}?v=${item.updatedAt.getTime()}`}
+                      alt=""
+                      fill
+                      className="object-cover"
+                    />
+                  </span>
+                )}
+                <span>
+                  <span className="text-slate-gray">{activityTypeLabels[item.type]}</span>{" "}
+                  <span className="text-ink-charcoal">{item.label}</span>
+                </span>
               </Link>
             </li>
           ))}

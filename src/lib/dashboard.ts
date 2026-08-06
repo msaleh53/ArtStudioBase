@@ -65,6 +65,8 @@ export type ActivityItem = {
   label: string;
   href: string;
   createdAt: Date;
+  imagePath?: string | null;
+  updatedAt?: Date;
 };
 
 export function mergeRecentActivity(items: ActivityItem[], limit = 8): ActivityItem[] {

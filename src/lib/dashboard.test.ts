@@ -136,4 +136,22 @@ describe("mergeRecentActivity", () => {
     ];
     expect(mergeRecentActivity(items, 2)).toHaveLength(2);
   });
+
+  it("preserves imagePath and updatedAt on artwork items", () => {
+    const updatedAt = new Date("2026-01-01T00:00:00Z");
+    const items: ActivityItem[] = [
+      {
+        type: "artwork",
+        id: "a1",
+        label: "Desert Sun",
+        href: "/artworks/a1",
+        createdAt: new Date("2026-01-02T00:00:00Z"),
+        imagePath: "user1/a1/original.jpg",
+        updatedAt,
+      },
+    ];
+    const result = mergeRecentActivity(items, 8);
+    expect(result[0].imagePath).toBe("user1/a1/original.jpg");
+    expect(result[0].updatedAt).toBe(updatedAt);
+  });
 });
