@@ -12,6 +12,7 @@ A focused round of UI improvements following the full design review (see review 
 4. **Semantic "attention" token** — a new DESIGN.md token for "needs attention / overdue," replacing the two ad-hoc `text-red-600` (Tailwind default, not in the palette) usages that mean "overdue" (dashboard's at-risk commissions, commissions kanban board). The other 8 `text-red-600` usages are form-validation error text — a different meaning — and are explicitly NOT touched by this plan.
 5. **Artwork card hover state** — lift + subtle image scale on the artworks gallery grid, so cards signal interactivity before the cursor is mid-click. Respects `prefers-reduced-motion`.
 6. **Dashboard activity thumbnails** — small (32–40px) thumbnail next to artwork-type rows in the dashboard's "Recent activity" list, using the same `imagePath`/cache-busting pattern already established on the artwork detail page.
+7. **Prune `DESIGN.md`** — the file is not a design system authored for this app; it's a verbatim style-guide extraction from a different SaaS product ("Dock" — references to "Deal Rooms," "Enablement Agent," customer logos "Lattice, BrightHire, Loom," pricing tables). Remove the sections describing components this app never uses, rewrite the two sections that describe that other product's marketing site as if it were this one, and add the two new tokens from items 1 and 4 above. This is documentation hygiene — it does not change any rendered UI.
 
 Out of scope: reordering status-badge colors (subjective, no unambiguous target state), any change to the Finance/Commissions/Exhibitions business logic, mobile-specific responsive redesign beyond what the sidebar naturally needs, Inventory (future feature, not yet built).
 
@@ -70,6 +71,32 @@ Form-validation error text (the other 8 usages of `text-red-600` across the app)
 ## Dashboard Activity Thumbnails
 
 `src/app/(dashboard)/dashboard/page.tsx`'s "Recent activity" list: for rows where `type === "artwork"`, render a 32–40px square thumbnail before the label, using the same Supabase public-bucket URL pattern and `?v=${updatedAt.getTime()}` cache-busting query param already established on the artwork detail page (`src/app/(dashboard)/artworks/[id]/page.tsx`). Requires adding `imagePath` and `updatedAt` to the `recentArtworks` query (both already exist as columns on `artworks`, just not currently selected in this query) and threading them through `ActivityItem`. Customer and commission activity rows are unchanged (no thumbnail — they have no associated image).
+
+## DESIGN.md Pruning
+
+**Remove entirely** (describe components/sections of the *other* product, "Dock," that this app has no equivalent of and never will):
+- `### Hero Section`
+- `### Product Feature Card`
+- `### Tab Bar`
+- `### Customer Stat Card`
+- `### Gradient CTA Banner`
+- `### Footer`
+- `### Pricing Table Row`
+- `### Checklist/Step Item` (references "Success Criteria," "Next Steps" — Dock's own product features, not this app's)
+- `## Similar Brands` (Linear/Attio/Raycast/Pitch/Loom comparisons are positioning for "Dock," not for this app)
+
+**Rewrite** (currently describe Dock's marketing site; replace with what's true of this app):
+- `## Imagery` — currently describes "product screenshots" and "customer logos (Lattice, BrightHire, Loom)" as the dominant visual. Rewrite to state that artwork photography is the dominant visual (the gallery grid, artwork detail pages, and the new dashboard thumbnails from item 6), presented in the existing 16px rounded-image containers.
+- `## Layout` (the prose section, not the token table) — currently describes a marketing hero/social-proof/CTA-banner page structure. Rewrite to describe this app's actual layout: sidebar + content shell (from item 1), `max-w-*` centered content per page, card-grid or list patterns for collection pages.
+- `### Top Navigation Bar` → rename to `### Sidebar Navigation`, replace its description with the structure defined in this spec's "Navigation Redesign" section (groups, active-state treatment, wordmark).
+- `## Agent Prompt Guide`'s three numbered example prompts (`Hero section`, `Customer stat card`, `Product feature card with screenshot`, `Tab bar`) — replace with prompts relevant to this app's actual components (e.g. sidebar nav item, artwork gallery card, stat tile). Keep the "Quick Color Reference" list as-is; add the two new tokens.
+
+**Add:**
+- The `--color-cobalt-wash` token (from "Navigation Redesign" above) to the Colors table.
+- The `--color-attention` token (from "Semantic Attention Token" above) to the Colors table.
+- One `### Do` bullet and one `### Don't` bullet covering when to use the new attention token (do: overdue/needs-attention states; don't: form validation errors, which stay on the existing red).
+
+**Leave unchanged:** Tokens — Colors (existing rows), Tokens — Typography, Type Scale, Spacing Scale, Border Radius, Shadows (token table), Primary Filled Button, Ghost/Neutral Button, Text Link, Surfaces, Elevation, Radius Language, Shadow Philosophy, Quick Start / CSS Custom Properties / Tailwind v4 sections — all of these describe things this app actually uses, correctly.
 
 ## Testing
 
