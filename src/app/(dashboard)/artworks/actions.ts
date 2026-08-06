@@ -47,6 +47,60 @@ export async function createArtwork(formData: FormData) {
   return {};
 }
 
+export async function updateArtwork(id: string, formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const [artwork] = await db.select().from(artworks).where(and(eq(artworks.id, id), eq(artworks.userId, user.id)));
+  if (!artwork) return { error: "Artwork not found" };
+
+  const title = formData.get("title") as string;
+  const medium = formData.get("medium") as string;
+  const dimensions = formData.get("dimensions") as string;
+  const price = formData.get("price") as string;
+  const description = formData.get("description") as string;
+  const file = formData.get("image") as File | null;
+
+  if (!title) return { error: "Title is required" };
+
+  let imagePath = artwork.imagePath;
+
+  if (file && file.size > 0) {
+    if (!file.type.startsWith("image/")) return { error: "File must be an image" };
+    if (file.size > 20 * 1024 * 1024) return { error: "Image must be under 20MB" };
+
+    const ext = file.name.split(".").pop();
+    const newPath = `${user.id}/${id}/original.${ext}`;
+
+    if (artwork.imagePath && artwork.imagePath !== newPath) {
+      await supabase.storage.from("artwork-images").remove([artwork.imagePath]);
+    }
+
+    const { error: uploadError } = await supabase.storage
+      .from("artwork-images")
+      .upload(newPath, file, { upsert: true });
+
+    if (uploadError) return { error: `Upload failed: ${uploadError.message}` };
+
+    imagePath = newPath;
+  }
+
+  await db.update(artworks).set({
+    title,
+    medium: medium || null,
+    dimensions: dimensions || null,
+    price: price || null,
+    description: description || null,
+    imagePath,
+    updatedAt: new Date(),
+  }).where(and(eq(artworks.id, id), eq(artworks.userId, user.id)));
+
+  revalidatePath("/artworks");
+  revalidatePath(`/artworks/${id}`);
+  return {};
+}
+
 export async function updateArtworkStatus(id: string, status: ArtworkStatus) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
