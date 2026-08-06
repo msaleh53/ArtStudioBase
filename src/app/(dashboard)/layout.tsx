@@ -12,6 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/customers" className="text-ink-charcoal font-medium">Customers</Link>
           <Link href="/commissions" className="text-ink-charcoal font-medium">Commissions</Link>
           <Link href="/exhibitions" className="text-ink-charcoal font-medium">Exhibitions</Link>
+          <Link href="/finance" className="text-ink-charcoal font-medium">Finance</Link>
         </div>
         <form action={logout}>
           <Button variant="outline" size="sm" className="rounded-pill">Log out</Button>
