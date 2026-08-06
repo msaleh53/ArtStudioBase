@@ -673,20 +673,23 @@ git commit -m "Replace default create-next-app metadata and remove unused templa
 - Modify: `package.json` (add `seed:sample` script)
 
 **Interfaces:**
-- Consumes: `db` (`@/db`), schema tables from `@/db/schema`, `@supabase/supabase-js` admin client (same pattern as `scripts/seed.ts`), `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `DATABASE_URL` from `.env.local`.
+- Consumes: schema tables from `@/db/schema`; a locally-constructed Drizzle client (`drizzle-orm/postgres-js` + `postgres`, built after `config()` runs — see Step 1's note on why this can't reuse `@/db`); `@supabase/supabase-js` admin client (same pattern as `scripts/seed.ts`); `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `DATABASE_URL` from `.env.local`.
 - Produces: a one-time CLI script run as `npm run seed:sample -- <email> <imagesDir>` — not consumed by any other task.
 
 - [ ] **Step 1: Write the script**
 
 Create `scripts/seed-sample-data.ts`:
 
+**Important — do not import `@/db` (or `../src/db`) here.** That module builds its `postgres()` connection from `process.env.DATABASE_URL` at import-evaluation time, which happens before this script's own `config()` call runs (ES module imports are evaluated before any of the importing file's own top-level statements, regardless of source order) — the connection would silently be built with `DATABASE_URL` still undefined, and `postgres-js` would fall back to a local socket connection that fails with `database "<os-user>" does not exist` on the first query. `scripts/seed.ts` avoids this same trap by constructing its own Supabase client as a local `const` after calling `config()`; do the same here for the Drizzle client.
+
 ```ts
 import { config } from "dotenv";
 import { readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { and, eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { createClient } from "@supabase/supabase-js";
-import { db } from "../src/db";
 import { artworks, commissions, customers, exhibitions, exhibitionArtworks } from "../src/db/schema";
 
 config({ path: ".env.local" });
@@ -706,6 +709,8 @@ const CONTENT_TYPES: Record<string, string> = {
   ".png": "image/png",
   ".webp": "image/webp",
 };
+
+const db = drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }));
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
