@@ -25,7 +25,8 @@ const CONTENT_TYPES: Record<string, string> = {
   ".webp": "image/webp",
 };
 
-const db = drizzle(postgres(process.env.DATABASE_URL!, { prepare: false }));
+const sql = postgres(process.env.DATABASE_URL!, { prepare: false });
+const db = drizzle(sql);
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -130,7 +131,7 @@ async function main() {
   console.log("Created 3 commissions");
 
   // Exhibitions: one within the dashboard's upcoming window, one outside it
-  const [nearExhibition] = await db
+  const [nearExhibition, autumnSalon] = await db
     .insert(exhibitions)
     .values([
       {
@@ -160,7 +161,22 @@ async function main() {
     console.log("Assigned an artwork to Downtown Gallery");
   }
 
+  const finishedArtwork = insertedArtworks.find((a) => a.status === "finished");
+  if (finishedArtwork && autumnSalon) {
+    await db.insert(exhibitionArtworks).values({
+      exhibitionId: autumnSalon.id,
+      artworkId: finishedArtwork.id,
+    });
+    console.log("Assigned an artwork to Autumn Salon");
+  }
+
   console.log("Sample data seed complete.");
 }
 
-main();
+main()
+  .then(() => sql.end())
+  .catch(async (e) => {
+    console.error(e);
+    await sql.end();
+    process.exit(1);
+  });

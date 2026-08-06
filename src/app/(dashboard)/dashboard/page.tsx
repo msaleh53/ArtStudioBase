@@ -12,7 +12,16 @@ import {
   mergeRecentActivity,
   type ActivityItem,
 } from "@/lib/dashboard";
-import type { ArtworkStatus } from "@/db/schema";
+import type { ArtworkStatus, CommissionStage } from "@/db/schema";
+
+// Mirrors the STAGES array in src/app/(dashboard)/commissions/board.tsx.
+const STAGE_LABELS: Record<CommissionStage, string> = {
+  inquiry: "Inquiry",
+  deposit_paid: "Deposit Paid",
+  painting: "Painting",
+  finished: "Finished",
+  delivered: "Delivered",
+};
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -140,7 +149,8 @@ export default async function DashboardPage() {
                     className={isCommissionOverdue(c.deadline, c.stage, todayIso) ? "text-red-600" : "text-slate-gray"}
                   >
                     Due {c.deadline}
-                  </span>
+                  </span>{" "}
+                  <span className="text-slate-gray">&middot; {STAGE_LABELS[c.stage]}</span>
                 </Link>
               </li>
             ))}
@@ -153,14 +163,25 @@ export default async function DashboardPage() {
             <p className="text-sm text-slate-gray">No exhibitions right now.</p>
           )}
           <ul className="space-y-2">
-            {upcomingExhibitions.map((ex) => (
-              <li key={ex.id}>
-                <Link href={`/exhibitions/${ex.id}`} className="block text-sm">
-                  <span className="text-ink-charcoal">{ex.galleryName}</span>{" "}
-                  <span className="text-slate-gray">{ex.startDate}</span>
-                </Link>
-              </li>
-            ))}
+            {upcomingExhibitions.map((ex) => {
+              const daysUntilDeadline = ex.submissionDeadline
+                ? (Date.parse(ex.submissionDeadline) - Date.parse(todayIso)) / 86_400_000
+                : null;
+              const deadlineIsSoon =
+                daysUntilDeadline !== null && daysUntilDeadline >= 0 && daysUntilDeadline <= 14;
+              return (
+                <li key={ex.id}>
+                  <Link href={`/exhibitions/${ex.id}`} className="block text-sm">
+                    <span className="text-ink-charcoal">{ex.galleryName}</span>{" "}
+                    <span className="text-slate-gray">
+                      {deadlineIsSoon
+                        ? `Submission due ${ex.submissionDeadline}`
+                        : `Starts ${ex.startDate}`}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
       </div>
