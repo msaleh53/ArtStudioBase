@@ -26,6 +26,8 @@ Dock operates in a sunlit, cream-warm workspace language: a soft #faf9f7 canvas 
 | Cerulean | `#0074dd` | `--color-cerulean` | Blue supporting accent for decorative details and low-frequency emphasis. Do not promote it to the primary CTA color |
 | Vivid Violet | `#6736eb` | `--color-vivid-violet` | Decorative accent — secondary brand color for highlight tags, illustrative elements, and customer logo treatments |
 | Forest | `#046645` | `--color-forest` | Green supporting accent for decorative details and low-frequency emphasis. Use as a supporting accent, not as a status color |
+| Cobalt Wash | `#e6f0ff` | `--color-cobalt-wash` | Active-state background for sidebar nav items and other selected-state list rows — a light tint of Electric Cobalt |
+| Attention | `#b3541e` | `--color-attention` | Overdue/needs-attention indicator (e.g. overdue commissions) — deliberately distinct from both the brand cobalt and the form-validation red |
 
 ## Tokens — Typography
 
@@ -114,50 +116,10 @@ Background #ffffff, text #121722, weight 500 at 15–16px. 48px border-radius. 1
 
 Color #0074dd or #0068f9, no underline by default, underline on hover. Weight 500 at body size.
 
-### Top Navigation Bar
-**Role:** Primary site navigation
+### Sidebar Navigation
+**Role:** Primary app navigation
 
-Background #ffffff, 1px bottom border in #efefef. Logo left, nav links center (Product, Pricing, Customers, Resources with dropdown chevrons), auth actions right. Nav links at 14–15px weight 500 #121722. Right side has Log in (text) + Request Demo (ghost pill) + Start for Free (filled cobalt pill).
-
-### Hero Section
-**Role:** Above-the-fold headline and CTA
-
-Background transitions from #faf9f7 to a soft blue gradient (#d5ecff → #f4f0ff) at the bottom. Headline at 84px weight 600, line-height 1.06, #121722, centered. Subtext at 18px weight 400 #121722, max-width ~640px. Two CTAs centered: ghost Request Demo + filled Start for Free.
-
-### Product Feature Card
-**Role:** Showcasing product capabilities (Deal Rooms, Enablement Agent, etc.)
-
-Background #ffffff, 16px border-radius, 1px border in #efefef, subtle multi-layer shadow. Internal padding 24px. Often paired with a product screenshot that overflows the card or sits on a gradient background.
-
-### Tab Bar
-**Role:** Switching between product feature areas
-
-Horizontal row of text labels (Deal Rooms, Enablement Agent, AI Documents, etc.). Active tab has #fbfaf7 pill background with 48px radius. Inactive tabs are plain #121722 text. No underlines or borders — the pill background is the only active indicator.
-
-### Customer Stat Card
-**Role:** Social proof with metrics (Lattice +25% win rate, BrightHire +22%, Loom 2 hours saved)
-
-Background #fbfaf7 to #ffffff, 16px radius, 1px border #efefef. Company logo + product label at top (14–15px). Large metric at 40–48px weight 600 in #0068f9 (the cobalt) or #6736eb (violet) — color varies per card to add rhythm. No heavy shadow.
-
-### Gradient CTA Banner
-**Role:** Final conversion section (Want a deeper tour of Dock?)
-
-Full-width background with a diagonal blue gradient from #faf9f7 through #c8dcf5 to #0068f9 in the lower-right corner. Headline at 48–57px weight 600 #121722, centered. Single filled cobalt button below. The gradient corner is the signature — it bleeds electric blue into the otherwise quiet page.
-
-### Footer
-**Role:** Site-wide links and legal
-
-Background #ffffff, 1px top border in #efefef. 6-column grid of link lists (Product, Sales, Enablement, Customer Success, Templates, Resources, General). Section headers at 13–14px weight 600, links at 14px weight 400 #777c86. Logo top-left. Bottom bar with legal links + copyright at 13px #a5a5a5.
-
-### Pricing Table Row
-**Role:** Product pricing display within Deal Room UI
-
-Background #ffffff, 1px bottom border #efefef. Column headers at 14px weight 500 #777c86. Data cells at 15–16px weight 400 #121722. Alternating subtle background optional. Total column right-aligned and weight 600.
-
-### Checklist/Step Item
-**Role:** Task tracking within product (Success Criteria, Next Steps)
-
-Green circle check icon (#046645) for completed, hollow circle for pending. Text at 15px weight 400 #121722. Compact 6–8px row gap. Optional right-side badge (In Progress, Schedule call) in 8px radius pill with tinted background.
+Fixed 220px left sidebar, background #ffffff, 1px right border in #efefef. A plain-text wordmark sits at the top. Below it, links are grouped under small-caps section labels (Studio, Clients, Money) in #a5a5a5. The active route gets a light cobalt-wash background (#e6f0ff), cobalt text (#0068f9), and a 2px cobalt bar on its left edge — every other link is plain #121722 text with no background. A "Log out" ghost-pill button sits at the bottom of the sidebar.
 
 ## Do's and Don'ts
 
@@ -169,6 +131,7 @@ Green circle check icon (#046645) for completed, hollow circle for pending. Text
 - Pair a filled cobalt CTA with a white ghost CTA in hero sections for balanced hierarchy
 - Use #efefef for all borders — never heavier than 1px
 - Let the electric blue gradient corner appear only in the final CTA banner, not throughout
+- Use the attention token (#b3541e) for overdue/needs-attention indicators — never plain red
 
 ### Don't
 - Don't use #ffffff as the page background — it kills the warm cream paper feel
@@ -178,6 +141,7 @@ Green circle check icon (#046645) for completed, hollow circle for pending. Text
 - Don't use #6736eb for CTAs or links — it's decorative accent only (tags, highlights, stat numbers)
 - Don't add heavy gradients to cards or panels — gradients belong only in the CTA banner and hero background
 - Don't use more than 1px borders in #efefef or #d6e4f1 — heavier strokes break the lightweight feel
+- Don't use the attention token for form-validation errors — that's a separate, existing red; the two must stay visually distinct
 
 ## Surfaces
 
@@ -195,11 +159,11 @@ Green circle check icon (#046645) for completed, hollow circle for pending. Text
 
 ## Imagery
 
-Product screenshots are the dominant visual: real interface captures showing Deal Rooms, pricing tables, checklists, and file tabs — not mockups. These are presented in rounded 16px containers, often with a subtle soft shadow (rgba(0,0,0,0.04) 0px 20px 20px -8px) and positioned on a gradient or lavender mist background to make them float. Customer logos (Lattice, BrightHire, Loom) appear as compact marks paired with colored metric numbers. No lifestyle photography, no abstract illustrations, no 3D renders — the product IS the hero. Icons are minimal, monoline-style, used sparingly in nav and status indicators.
+Artwork photography is the dominant visual: real paintings and prints, shown in the artworks gallery grid, on artwork detail pages, and as small thumbnails in the dashboard's recent-activity list. Images sit in 16px rounded containers (`--radius-card`), `object-cover`-cropped to their container. No stock photography, no illustrations, no decorative gradients behind images — the artwork itself is the visual, the same way a gallery wall doesn't compete with what's hanging on it. Icons are minimal and used sparingly, mainly as status indicators.
 
 ## Layout
 
-Full-width page with max-width 1200px centered content. Hero is a centered stack: 84px headline → 18px subtext (max ~640px) → two pill buttons, sitting on a cream-to-blue gradient. Feature sections alternate between full-bleed gradient backgrounds and contained card grids. Product tabs (Deal Rooms, Enablement Agent, etc.) sit as a horizontal pill-bar above a large product screenshot. Social proof uses a 3-column card grid (Lattice / BrightHire / Loom) with company mark + product label + large colored metric. Final CTA is a full-bleed section with a diagonal blue gradient bleeding from the lower-right corner. Footer is a 6-column link grid on white. Vertical rhythm uses 80px section gaps; cards use 24px internal padding with 8px element gaps.
+Sidebar + content shell: a fixed 220px sidebar on the left, page content to the right on the canvas-cream background. Each page's content sits in a `max-w-3xl` to `max-w-7xl` container (width varies by page — forms and detail pages are narrower, galleries and kanban boards are wider), centered with `mx-auto` and `p-8` padding. Collection pages (Artworks, Customers, Exhibitions) follow a consistent shape: a heading, a creation form, then a list or grid of existing items — cards for anything with imagery (Artworks), simple rows for text-only records (Customers, Exhibitions). The Commissions page departs from the list pattern with a five-column kanban board matching its five-stage pipeline.
 
 ## Agent Prompt Guide
 
@@ -210,13 +174,14 @@ Full-width page with max-width 1200px centered content. Hero is a centered stack
 - border: #efefef
 - muted text: #777c86 or #a5a5a5
 - primary action: no distinct CTA color
+- attention/overdue: #b3541e
+- active nav background: #e6f0ff
 
 **Example Component Prompts**
-1. **Hero section**: Background gradient from #faf9f7 (top) to #d5ecff (bottom). Headline at 84px Roobert weight 600, #121722, line-height 1.06, centered. Subtext at 18px weight 400, #121722, max-width 640px. Two CTAs centered: ghost button (#ffffff fill, #121722 text, 1px #efefef border, 48px radius, 12px 24px padding) + filled button (#0068f9 fill, #ffffff text, 48px radius, 12px 24px padding).
-2. **Customer stat card**: Background #fbfaf7, 16px radius, 1px border #efefef, 24px padding. Company logo at top (24px tall). Product label at 14px weight 500 #777c86. Large metric at 48px weight 600 in #0068f9. Light shadow: rgba(0,0,0,0.07) 0px 1px 1px 0px + inset border.
-3. **Product feature card with screenshot**: Background #ffffff, 16px radius, 1px border #efefef, 24px padding. Tab bar above with active pill (#fbfaf7 fill, 48px radius). Screenshot image at 16px radius, 20px soft shadow below, sitting on a #f4f0ff to #ffffff gradient background.
-No distinct primary action color was observed; use the extracted neutral button treatments instead of inventing a filled CTA color.
-5. **Tab bar**: Horizontal row on transparent background. 5–7 text labels at 15px weight 500 #121722, spaced 24px apart. Active tab has #fbfaf7 background, 48px radius, 8px 16px padding. No underlines, no borders — pill background is the sole active indicator.
+1. **Sidebar nav item (active)**: Background #e6f0ff, text #0068f9 weight 600, 8px padding, small-radius corners. 2px cobalt bar on the left edge, vertically centered, rounded ends.
+2. **Sidebar nav item (inactive)**: Background transparent, text #121722 weight 500. On hover, background #faf9f7.
+3. **Artwork gallery card**: Background #ffffff, 16px radius, square image at top (`object-cover`), title + medium/dimensions + status badge below in 24px padding. On hover: soft shadow lift, image scales ~3%.
+4. **Stat tile**: Background #ffffff, 16px radius, 16px padding. Label at 14px #777c86, value at 24px weight 600 #121722, formatted as currency with two decimals where the value is a dollar amount.
 
 ## Radius Language
 
@@ -225,14 +190,6 @@ The system uses an unusually wide radius range that creates a distinct softness:
 ## Shadow Philosophy
 
 Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px drop + 1px inset top + 0.5px inset border) that reads as a subtle outline more than elevation. Product screenshots get a single soft 20px spread shadow at 4% opacity. The system never uses heavy drop shadows, colored shadows, or glow effects. Elevation is communicated through background lightness steps (canvas → ivory → white) rather than shadow depth.
-
-## Similar Brands
-
-- **Linear** — Same single-accent-color discipline (Linear uses purple, Dock uses cobalt) against a warm light background with pill-shaped buttons and large confident type
-- **Attio** — Warm cream/off-white canvas rather than pure white, soft rounded cards, single vivid interactive color, generous section spacing
-- **Raycast** — Clean light SaaS with pill buttons, product screenshots as heroes, minimal chrome, and a single accent color doing all interactive work
-- **Pitch** — Same approach of letting a custom geometric typeface carry the brand, with featherlight components and a gradient hero section as a signature moment
-- **Loom** — Warm approachable light theme, rounded everything, and product UI shown as embedded screenshots rather than abstract illustrations
 
 ## Quick Start
 
