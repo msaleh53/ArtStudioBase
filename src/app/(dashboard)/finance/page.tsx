@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { income, expenses } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { EXPENSE_CATEGORY_LABELS } from "@/lib/expense-category";
+import { formatCurrency } from "@/lib/currency";
 import type { ExpenseCategory } from "@/db/schema";
 
 function currentMonthRange(): { start: string; end: string } {
@@ -45,15 +46,15 @@ export default async function FinancePage() {
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-card p-4">
           <p className="text-sm text-slate-gray">This month&apos;s income</p>
-          <p className="text-2xl font-semibold text-ink-charcoal">${monthIncomeTotal.toFixed(2)}</p>
+          <p className="text-2xl font-semibold text-ink-charcoal">{formatCurrency(monthIncomeTotal)}</p>
         </div>
         <div className="bg-white rounded-card p-4">
           <p className="text-sm text-slate-gray">This month&apos;s expenses</p>
-          <p className="text-2xl font-semibold text-ink-charcoal">${monthExpenseTotal.toFixed(2)}</p>
+          <p className="text-2xl font-semibold text-ink-charcoal">{formatCurrency(monthExpenseTotal)}</p>
         </div>
         <div className="bg-white rounded-card p-4">
           <p className="text-sm text-slate-gray">Net</p>
-          <p className="text-2xl font-semibold text-ink-charcoal">${net.toFixed(2)}</p>
+          <p className="text-2xl font-semibold text-ink-charcoal">{formatCurrency(net)}</p>
         </div>
       </div>
 
@@ -66,7 +67,7 @@ export default async function FinancePage() {
           {(Object.entries(categoryTotals) as [ExpenseCategory, number][]).map(([category, total]) => (
             <li key={category} className="flex justify-between text-sm">
               <span className="text-ink-charcoal">{EXPENSE_CATEGORY_LABELS[category]}</span>
-              <span className="text-slate-gray">${total.toFixed(2)}</span>
+              <span className="text-slate-gray">{formatCurrency(total)}</span>
             </li>
           ))}
         </ul>
@@ -80,7 +81,7 @@ export default async function FinancePage() {
             {recentIncome.map((r) => (
               <li key={r.id}>
                 <Link href="/finance/income" className="block text-sm">
-                  <span className="text-ink-charcoal">${r.amount}</span>{" "}
+                  <span className="text-ink-charcoal">{formatCurrency(r.amount)}</span>{" "}
                   <span className="text-slate-gray">{r.description}</span>
                 </Link>
               </li>
@@ -94,7 +95,7 @@ export default async function FinancePage() {
             {recentExpenses.map((r) => (
               <li key={r.id}>
                 <Link href="/finance/expenses" className="block text-sm">
-                  <span className="text-ink-charcoal">${r.amount}</span>{" "}
+                  <span className="text-ink-charcoal">{formatCurrency(r.amount)}</span>{" "}
                   <span className="text-slate-gray">{EXPENSE_CATEGORY_LABELS[r.category]}</span>
                 </Link>
               </li>

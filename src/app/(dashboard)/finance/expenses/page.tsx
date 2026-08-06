@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { expenses } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
+import { formatCurrency } from "@/lib/currency";
 import { NewExpenseForm } from "./new-expense-form";
 import { EXPENSE_CATEGORY_LABELS } from "@/lib/expense-category";
 
@@ -28,7 +29,7 @@ export default async function ExpensesPage() {
       <ul className="space-y-2">
         {rowsWithReceiptUrls.map((r) => (
           <li key={r.id} className="bg-white rounded-card p-4">
-            <p className="font-medium text-ink-charcoal">${r.amount} — {EXPENSE_CATEGORY_LABELS[r.category]}</p>
+            <p className="font-medium text-ink-charcoal">{formatCurrency(r.amount)} — {EXPENSE_CATEGORY_LABELS[r.category]}</p>
             <p className="text-sm text-slate-gray">{r.date}{r.description && ` · ${r.description}`}</p>
             {r.receiptUrl && (
               <a href={r.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-electric-cobalt">
