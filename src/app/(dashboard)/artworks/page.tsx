@@ -27,15 +27,15 @@ export default async function ArtworksPage() {
           <Link
             key={art.id}
             href={`/artworks/${art.id}`}
-            className="bg-white rounded-card overflow-hidden block"
+            className="bg-white rounded-card overflow-hidden block transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none"
           >
             {art.imagePath && (
-              <div className="relative aspect-square">
+              <div className="relative aspect-square overflow-hidden">
                 <Image
                   src={`${supabaseUrl}/storage/v1/object/public/artwork-images/${art.imagePath}`}
                   alt={art.title}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-200 hover:scale-[1.03] motion-reduce:transition-none motion-reduce:hover:scale-100"
                 />
               </div>
             )}
