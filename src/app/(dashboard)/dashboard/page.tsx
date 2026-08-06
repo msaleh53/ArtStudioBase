@@ -1,0 +1,186 @@
+import Link from "next/link";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { db } from "@/db";
+import { artworks, commissions, customers, exhibitions } from "@/db/schema";
+import { createClient } from "@/lib/supabase/server";
+import { STATUS_LABELS } from "@/components/status-badge";
+import {
+  isCommissionAtRisk,
+  isCommissionOverdue,
+  isExhibitionRelevant,
+  toStatusCounts,
+  mergeRecentActivity,
+  type ActivityItem,
+} from "@/lib/dashboard";
+import type { ArtworkStatus } from "@/db/schema";
+
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const todayIso = new Date().toISOString().slice(0, 10);
+
+  const [
+    statusRows,
+    allCommissions,
+    allExhibitions,
+    recentArtworks,
+    recentCustomers,
+    recentCommissions,
+  ] = await Promise.all([
+    db
+      .select({ status: artworks.status, count: sql<number>`count(*)::int` })
+      .from(artworks)
+      .where(eq(artworks.userId, user.id))
+      .groupBy(artworks.status),
+    db
+      .select({
+        id: commissions.id,
+        stage: commissions.stage,
+        deadline: commissions.deadline,
+        customerName: customers.name,
+      })
+      .from(commissions)
+      .innerJoin(customers, eq(commissions.customerId, customers.id))
+      .where(and(eq(commissions.userId, user.id), eq(customers.userId, user.id))),
+    db.select().from(exhibitions).where(eq(exhibitions.userId, user.id)),
+    db
+      .select({ id: artworks.id, title: artworks.title, createdAt: artworks.createdAt })
+      .from(artworks)
+      .where(eq(artworks.userId, user.id))
+      .orderBy(desc(artworks.createdAt))
+      .limit(8),
+    db
+      .select({ id: customers.id, name: customers.name, createdAt: customers.createdAt })
+      .from(customers)
+      .where(eq(customers.userId, user.id))
+      .orderBy(desc(customers.createdAt))
+      .limit(8),
+    db
+      .select({
+        id: commissions.id,
+        createdAt: commissions.createdAt,
+        customerName: customers.name,
+      })
+      .from(commissions)
+      .innerJoin(customers, eq(commissions.customerId, customers.id))
+      .where(and(eq(commissions.userId, user.id), eq(customers.userId, user.id)))
+      .orderBy(desc(commissions.createdAt))
+      .limit(8),
+  ]);
+
+  const statusCounts = toStatusCounts(statusRows);
+
+  const atRiskCommissions = allCommissions
+    .filter((c) => isCommissionAtRisk(c.deadline, c.stage, todayIso))
+    .sort((a, b) => (a.deadline ?? "").localeCompare(b.deadline ?? ""));
+
+  const upcomingExhibitions = allExhibitions
+    .filter((ex) => isExhibitionRelevant(ex.startDate, ex.endDate, ex.submissionDeadline, todayIso))
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+
+  const activityItems: ActivityItem[] = [
+    ...recentArtworks.map((a) => ({
+      type: "artwork" as const,
+      id: a.id,
+      label: a.title,
+      href: `/artworks/${a.id}`,
+      createdAt: a.createdAt,
+    })),
+    ...recentCustomers.map((c) => ({
+      type: "customer" as const,
+      id: c.id,
+      label: c.name,
+      href: `/customers/${c.id}`,
+      createdAt: c.createdAt,
+    })),
+    ...recentCommissions.map((c) => ({
+      type: "commission" as const,
+      id: c.id,
+      label: `Commission for ${c.customerName}`,
+      href: "/commissions",
+      createdAt: c.createdAt,
+    })),
+  ];
+  const recentActivity = mergeRecentActivity(activityItems, 8);
+
+  const statusOrder: ArtworkStatus[] = ["in_progress", "finished", "exhibited", "sold"];
+  const activityTypeLabels: Record<ActivityItem["type"], string> = {
+    artwork: "Artwork",
+    customer: "Customer",
+    commission: "Commission",
+  };
+
+  return (
+    <main className="p-8 max-w-6xl mx-auto space-y-8">
+      <h1 className="text-2xl font-semibold text-ink-charcoal">Dashboard</h1>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {statusOrder.map((status) => (
+          <div key={status} className="bg-white rounded-card p-4">
+            <p className="text-sm text-slate-gray">{STATUS_LABELS[status]}</p>
+            <p className="text-2xl font-semibold text-ink-charcoal">{statusCounts[status]}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section className="bg-white rounded-card p-4 space-y-3">
+          <h2 className="font-medium text-ink-charcoal">Needs attention</h2>
+          {atRiskCommissions.length === 0 && (
+            <p className="text-sm text-slate-gray">No commissions need attention right now.</p>
+          )}
+          <ul className="space-y-2">
+            {atRiskCommissions.map((c) => (
+              <li key={c.id}>
+                <Link href="/commissions" className="block text-sm">
+                  <span className="text-ink-charcoal">{c.customerName}</span>{" "}
+                  <span
+                    className={isCommissionOverdue(c.deadline, c.stage, todayIso) ? "text-red-600" : "text-slate-gray"}
+                  >
+                    Due {c.deadline}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="bg-white rounded-card p-4 space-y-3">
+          <h2 className="font-medium text-ink-charcoal">Exhibitions</h2>
+          {upcomingExhibitions.length === 0 && (
+            <p className="text-sm text-slate-gray">No exhibitions right now.</p>
+          )}
+          <ul className="space-y-2">
+            {upcomingExhibitions.map((ex) => (
+              <li key={ex.id}>
+                <Link href={`/exhibitions/${ex.id}`} className="block text-sm">
+                  <span className="text-ink-charcoal">{ex.galleryName}</span>{" "}
+                  <span className="text-slate-gray">{ex.startDate}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      <section className="bg-white rounded-card p-4 space-y-3">
+        <h2 className="font-medium text-ink-charcoal">Recent activity</h2>
+        {recentActivity.length === 0 && (
+          <p className="text-sm text-slate-gray">Nothing here yet.</p>
+        )}
+        <ul className="space-y-2">
+          {recentActivity.map((item) => (
+            <li key={`${item.type}-${item.id}`}>
+              <Link href={item.href} className="block text-sm">
+                <span className="text-slate-gray">{activityTypeLabels[item.type]}</span>{" "}
+                <span className="text-ink-charcoal">{item.label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  );
+}

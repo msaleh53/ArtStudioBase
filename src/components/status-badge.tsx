@@ -8,7 +8,7 @@ const STATUS_STYLES: Record<ArtworkStatus, string> = {
   sold: "bg-forest text-white",
 };
 
-const STATUS_LABELS: Record<ArtworkStatus, string> = {
+export const STATUS_LABELS: Record<ArtworkStatus, string> = {
   in_progress: "In Progress",
   finished: "Finished",
   exhibited: "Exhibited",
