@@ -15,6 +15,13 @@
       "when": 1785988917126,
       "tag": "0003_brown_old_lace",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785992803595,
+      "tag": "0004_majestic_franklin_richards",
+      "breakpoints": true
     }
   ]
 }

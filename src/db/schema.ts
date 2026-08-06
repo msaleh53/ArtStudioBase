@@ -19,6 +19,7 @@ export const artworks = pgTable("artworks", {
   title: text("title").notNull(),
   medium: text("medium"),
   dimensions: text("dimensions"),
+  description: text("description"),
   price: numeric("price"),
   status: artworkStatus("status").notNull().default("in_progress"),
   imagePath: text("image_path"),
