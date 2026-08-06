@@ -146,7 +146,7 @@ export default async function DashboardPage() {
                 <Link href="/commissions" className="block text-sm">
                   <span className="text-ink-charcoal">{c.customerName}</span>{" "}
                   <span
-                    className={isCommissionOverdue(c.deadline, c.stage, todayIso) ? "text-red-600" : "text-slate-gray"}
+                    className={isCommissionOverdue(c.deadline, c.stage, todayIso) ? "text-attention" : "text-slate-gray"}
                   >
                     Due {c.deadline}
                   </span>{" "}

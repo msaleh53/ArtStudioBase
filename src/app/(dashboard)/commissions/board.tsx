@@ -34,7 +34,7 @@ export function Board({ commissions }: { commissions: Commission[] }) {
             <div key={c.id} className="bg-white rounded-card p-3 space-y-2">
               <p className="font-medium text-sm">{c.customerName}</p>
               {c.deadline && (
-                <p className={`text-xs ${isOverdue(c) ? "text-red-600" : "text-slate-gray"}`}>
+                <p className={`text-xs ${isOverdue(c) ? "text-attention" : "text-slate-gray"}`}>
                   Due {c.deadline}
                 </p>
               )}
