@@ -49,6 +49,7 @@ export function NavLinks() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={`relative px-3 py-2 rounded-md text-sm font-medium ${
                     active
                       ? "bg-cobalt-wash text-electric-cobalt"

@@ -1,9 +1,9 @@
-# Dock — Style Reference
+# Artist Studio — Style Reference
 > Sunlit cream paper, cobalt pulse
 
 **Theme:** light
 
-Dock operates in a sunlit, cream-warm workspace language: a soft #faf9f7 canvas replaces the usual pure-white SaaS backdrop, giving every screen a paper-like, approachable feel. Typography carries the weight — 84px Roobert display headlines sit alongside 16px body text with generous breathing room, letting the copy feel like confident printed prose rather than UI chrome. A single electric cobalt blue (#0068f9) punctuates the calm neutrals as the only interactive color: filled CTAs, active states, and links all share this vivid hue, while a secondary violet (#6736eb) appears sparingly as decorative accent. Components stay featherlight — pill-shaped buttons, hairline borders, soft elevated cards, and zero heavy shadows — so the product screenshots become the visual heroes rather than chrome around them.
+Artist Studio operates in a sunlit, cream-warm workspace language: a soft #faf9f7 canvas replaces the usual pure-white SaaS backdrop, giving every screen a paper-like, approachable feel. Typography carries the weight — display headlines sit alongside 16px body text with generous breathing room, letting the copy feel like confident printed prose rather than UI chrome. A single electric cobalt blue (#0068f9) punctuates the calm neutrals as the only interactive color: filled buttons, active states, and links all share this vivid hue, while a secondary violet (#6736eb) appears sparingly as decorative accent. Components stay featherlight — pill-shaped buttons, hairline borders, soft elevated cards, and zero heavy shadows — so the artwork photography becomes the visual hero rather than chrome around it.
 
 ## Tokens — Colors
 
@@ -127,19 +127,15 @@ Fixed 220px left sidebar, background #ffffff, 1px right border in #efefef. A pla
 - Use #faf9f7 as the page background — never substitute pure #ffffff for the canvas
 - Apply the 48px pill radius to all buttons and the 16px radius to all cards
 - Set primary action buttons to #0068f9 fill with #ffffff text at weight 500, 15–16px
-- Use 84px Roobert weight 600 for hero headlines with line-height 1.06
-- Pair a filled cobalt CTA with a white ghost CTA in hero sections for balanced hierarchy
 - Use #efefef for all borders — never heavier than 1px
-- Let the electric blue gradient corner appear only in the final CTA banner, not throughout
 - Use the attention token (#b3541e) for overdue/needs-attention indicators — never plain red
 
 ### Don't
 - Don't use #ffffff as the page background — it kills the warm cream paper feel
 - Don't use flat shadows (e.g., box-shadow: 0 4px 8px) — the system uses feather-light multi-layer shadows or none
-- Don't add a second chromatic color to CTA buttons — #0068f9 is the only filled action color
-- Don't set headline line-height above 1.15 — the tight leading at display sizes is signature
-- Don't use #6736eb for CTAs or links — it's decorative accent only (tags, highlights, stat numbers)
-- Don't add heavy gradients to cards or panels — gradients belong only in the CTA banner and hero background
+- Don't add a second chromatic color to filled buttons — #0068f9 is the only filled action color
+- Don't use #6736eb for buttons or links — it's decorative accent only (tags, highlights, stat numbers)
+- Don't add heavy gradients to cards or panels — the system avoids gradients throughout
 - Don't use more than 1px borders in #efefef or #d6e4f1 — heavier strokes break the lightweight feel
 - Don't use the attention token for form-validation errors — that's a separate, existing red; the two must stay visually distinct
 
@@ -150,12 +146,12 @@ Fixed 220px left sidebar, background #ffffff, 1px right border in #efefef. A pla
 | 0 | Canvas Cream | `#faf9f7` | Page background — base layer for all content |
 | 1 | Surface Ivory | `#fbfaf7` | Cards, panels — subtle lift from canvas without shadow |
 | 2 | Pure White | `#ffffff` | Elevated cards, nav bar, input fields, button hover |
-| 3 | Lavender Mist | `#f4f0ff` | Decorative highlight wash, hero gradient zones |
+| 3 | Lavender Mist | `#f4f0ff` | Decorative highlight wash |
 
 ## Elevation
 
 - **Cards and panels:** `rgba(0, 0, 0, 0.07) 0px 1px 1px 0px, rgba(0, 0, 0, 0.04) 0px -1px 1px 0px inset, rgba(0, 0, 0, 0.14) 0px 0px 0px 0.5px inset`
-- **Product screenshot images:** `rgba(0, 0, 0, 0.04) 0px 20px 20px -8px`
+- **Artwork images:** `rgba(0, 0, 0, 0.04) 0px 20px 20px -8px`
 
 ## Imagery
 
@@ -185,11 +181,11 @@ Sidebar + content shell: a fixed 220px sidebar on the left, page content to the 
 
 ## Radius Language
 
-The system uses an unusually wide radius range that creates a distinct softness: 8px for small UI elements (badges, inline tags), 16px for cards and images, 48px for buttons and active nav states (pill shape), 60px for icon containers (near-circular), and 100px for decorative orbs. The 48px button radius is the most signature choice — it makes every action feel like a physical capsule, not a sharp rectangle. Never use 4px or 6px radii; the system commits fully to softness.
+The system uses an unusually wide radius range that creates a distinct softness: 8px for small UI elements (badges, inline tags), 16px for cards and images, 48px for buttons and active nav states (pill shape), 60px for icon containers (near-circular), and 100px for decorative orbs. The 48px button radius is the most signature choice — it makes every action feel like a physical capsule, not a sharp rectangle. The system favors soft, generous radii for primary surfaces (cards, buttons, images) — 16px for cards, 48px for buttons/pills. Small interactive elements like nav-item highlights and thumbnails may use tighter radii (4-8px) where a pill or 16px radius would look oversized relative to the element.
 
 ## Shadow Philosophy
 
-Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px drop + 1px inset top + 0.5px inset border) that reads as a subtle outline more than elevation. Product screenshots get a single soft 20px spread shadow at 4% opacity. The system never uses heavy drop shadows, colored shadows, or glow effects. Elevation is communicated through background lightness steps (canvas → ivory → white) rather than shadow depth.
+Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px drop + 1px inset top + 0.5px inset border) that reads as a subtle outline more than elevation. Artwork images get a single soft 20px spread shadow at 4% opacity. The system never uses heavy drop shadows, colored shadows, or glow effects. Elevation is communicated through background lightness steps (canvas → ivory → white) rather than shadow depth.
 
 ## Quick Start
 
@@ -215,6 +211,8 @@ Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px dr
   --color-cerulean: #0074dd;
   --color-vivid-violet: #6736eb;
   --color-forest: #046645;
+  --color-cobalt-wash: #e6f0ff;
+  --color-attention: #b3541e;
 
   /* Typography — Font Families */
   --font-roobert: 'Roobert', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -316,6 +314,8 @@ Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px dr
   --color-cerulean: #0074dd;
   --color-vivid-violet: #6736eb;
   --color-forest: #046645;
+  --color-cobalt-wash: #e6f0ff;
+  --color-attention: #b3541e;
 
   /* Typography */
   --font-roobert: 'Roobert', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
