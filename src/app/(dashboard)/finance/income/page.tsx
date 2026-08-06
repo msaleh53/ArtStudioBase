@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { income, artworks } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -13,8 +13,7 @@ export default async function IncomePage() {
     .from(artworks).where(eq(artworks.userId, user.id));
 
   // income.artworkId, when set, is always validated at write time (createIncome)
-  // to belong to this user — so this join needs no additional user_id filter on
-  // artworks, the same reasoning already documented for exhibition_artworks.
+  // to belong to this user. The userId check on the join below is defense-in-depth.
   const rows = await db
     .select({
       id: income.id,
@@ -24,7 +23,7 @@ export default async function IncomePage() {
       artworkTitle: artworks.title,
     })
     .from(income)
-    .leftJoin(artworks, eq(income.artworkId, artworks.id))
+    .leftJoin(artworks, and(eq(income.artworkId, artworks.id), eq(artworks.userId, user.id)))
     .where(eq(income.userId, user.id))
     .orderBy(desc(income.date));
 

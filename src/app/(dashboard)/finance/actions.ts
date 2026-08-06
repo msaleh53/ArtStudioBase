@@ -5,6 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { income, expenses, artworks, type ExpenseCategory } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
+import { EXPENSE_CATEGORIES } from "@/lib/expense-category";
 
 export async function createIncome(formData: FormData) {
   const supabase = await createClient();
@@ -18,6 +19,8 @@ export async function createIncome(formData: FormData) {
 
   if (!date) return { error: "Date is required" };
   if (!amount) return { error: "Amount is required" };
+  const amountNum = Number(amount);
+  if (!Number.isFinite(amountNum) || amountNum <= 0) return { error: "Amount must be a positive number" };
   if (!description) return { error: "Description is required" };
 
   if (artworkId) {
@@ -52,7 +55,10 @@ export async function createExpense(formData: FormData) {
 
   if (!date) return { error: "Date is required" };
   if (!amount) return { error: "Amount is required" };
+  const amountNum = Number(amount);
+  if (!Number.isFinite(amountNum) || amountNum <= 0) return { error: "Amount must be a positive number" };
   if (!category) return { error: "Category is required" };
+  if (!EXPENSE_CATEGORIES.includes(category)) return { error: "Category is required" };
 
   const hasFile = !!file && file.size > 0;
   if (hasFile) {
