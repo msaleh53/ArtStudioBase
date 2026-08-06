@@ -46,5 +46,3 @@ Please execute this project incrementally. Do not generate all frontend code and
 Step 1: Generate the full database schema definitions (Prisma/Drizzle schema or raw Supabase SQL migrations) that reflect the visual inventory, commission tracking, and exhibition mapping described above. Include the necessary Row Level Security (RLS) configurations for user ownership.
 Step 2: Output a functional TypeScript utility or Server Action template for handling image file uploads to a Supabase Storage bucket.
 Step 3: Create the main Dashboard UI layout showcasing a mockup gallery of the Artwork inventory cards.
-
-Acknowledge your understanding of this stack choice and output Step 1 to begin.
