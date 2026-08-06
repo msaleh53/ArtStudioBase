@@ -16,6 +16,9 @@ export default async function ExhibitionsPage() {
     <main className="p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Exhibitions</h1>
       <NewExhibitionForm />
+      {rows.length === 0 && (
+        <p className="text-sm text-slate-gray mb-2">No exhibitions yet.</p>
+      )}
       <ul className="space-y-2">
         {rows.map((ex) => (
           <li key={ex.id}>

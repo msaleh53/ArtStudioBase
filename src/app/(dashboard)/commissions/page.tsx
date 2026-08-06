@@ -27,6 +27,9 @@ export default async function CommissionsPage() {
     <main className="p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Commissions</h1>
       <NewCommissionForm customers={customerRows} />
+      {commissionRows.length === 0 && (
+        <p className="text-sm text-slate-gray mb-4">No commissions yet.</p>
+      )}
       <Board commissions={commissionRows} />
     </main>
   );

@@ -19,6 +19,9 @@ export default async function ArtworksPage() {
     <main className="p-8 max-w-6xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Artwork Inventory</h1>
       <UploadForm />
+      {rows.length === 0 && (
+        <p className="text-sm text-slate-gray mb-6">No artworks yet — upload your first piece above.</p>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {rows.map((art) => (
           <Link

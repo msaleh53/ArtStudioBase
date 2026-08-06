@@ -16,6 +16,9 @@ export default async function CustomersPage() {
     <main className="p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Customers</h1>
       <NewCustomerForm />
+      {rows.length === 0 && (
+        <p className="text-sm text-slate-gray mb-2">No customers yet.</p>
+      )}
       <ul className="space-y-2">
         {rows.map((c) => (
           <li key={c.id}>
