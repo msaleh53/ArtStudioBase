@@ -77,3 +77,30 @@ export const printEditions = pgTable("print_editions", {
   soldCount: integer("sold_count").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const expenseCategory = pgEnum("expense_category", [
+  "supplies", "framing", "printing", "studio_rent", "shipping",
+  "website_fees", "submission_fees", "other",
+]);
+export type ExpenseCategory = (typeof expenseCategory.enumValues)[number];
+
+export const income = pgTable("income", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  date: date("date").notNull(),
+  amount: numeric("amount").notNull(),
+  description: text("description").notNull(),
+  artworkId: uuid("artwork_id").references(() => artworks.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const expenses = pgTable("expenses", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  date: date("date").notNull(),
+  amount: numeric("amount").notNull(),
+  category: expenseCategory("category").notNull(),
+  description: text("description"),
+  receiptPath: text("receipt_path"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});

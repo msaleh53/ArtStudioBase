@@ -22,6 +22,13 @@
       "when": 1785992803595,
       "tag": "0004_majestic_franklin_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785996281240,
+      "tag": "0005_chilly_hitman",
+      "breakpoints": true
     }
   ]
 }
