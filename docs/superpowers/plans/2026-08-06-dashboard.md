@@ -58,8 +58,13 @@ export const customers = pgTable("customers", {
 
 - [ ] **Step 2: Generate the migration**
 
+`drizzle/migrations/0001_rls_policies.sql` and `0002_storage_bucket.sql` were hand-written and were never added to `drizzle-kit`'s journal (`drizzle/migrations/meta/_journal.json` only has one entry, `0000_solid_starhawk`). This means `drizzle-kit generate` will number its output off the journal, not off files on disk — check first:
+
+Run: `cat drizzle/migrations/meta/_journal.json`
+Expected: one entry, `0000_solid_starhawk`.
+
 Run: `npx drizzle-kit generate`
-Expected: a new file appears under `drizzle/migrations/`, e.g. `0003_<name>.sql`, containing `ALTER TABLE "customers" ADD COLUMN "created_at" timestamp with time zone DEFAULT now() NOT NULL;`
+Expected: a new file appears under `drizzle/migrations/`, most likely named `0001_<generated-name>.sql` — this collides in the numbering sequence with the existing hand-written `0001_rls_policies.sql`, though not on disk (drizzle-kit picks a unique auto-generated name, not literally `0001_rls_policies`). To keep the migrations directory readable in file-listing order, rename the generated file to `0003_<generated-name>.sql` and update its `tag` field to match in `drizzle/migrations/meta/_journal.json`'s newly-added entry (the `idx` field can stay as `drizzle-kit` set it — only the `tag` and filename need to agree with each other).
 
 - [ ] **Step 3: Apply the migration**
 
@@ -92,7 +97,7 @@ git commit -m "Add createdAt column to customers table"
   - `addDaysIso(iso: string, days: number): string`
   - `isCommissionOverdue(deadline: string | null, stage: CommissionStage, todayIso: string): boolean`
   - `isCommissionAtRisk(deadline: string | null, stage: CommissionStage, todayIso: string, windowDays?: number): boolean`
-  - `isExhibitionUpcoming(startDate: string, submissionDeadline: string | null, todayIso: string): boolean`
+  - `isExhibitionRelevant(startDate: string, endDate: string, submissionDeadline: string | null, todayIso: string): boolean` — true if the exhibition is currently running, starts soon, or has a submission deadline coming up (see Step 3 for the exact windows)
   - `toStatusCounts(rows: { status: ArtworkStatus; count: number }[]): Record<ArtworkStatus, number>`
   - `type ActivityItem = { type: "artwork" | "customer" | "commission"; id: string; label: string; href: string; createdAt: Date }`
   - `mergeRecentActivity(items: ActivityItem[], limit?: number): ActivityItem[]`
@@ -107,7 +112,7 @@ import {
   addDaysIso,
   isCommissionOverdue,
   isCommissionAtRisk,
-  isExhibitionUpcoming,
+  isExhibitionRelevant,
   toStatusCounts,
   mergeRecentActivity,
   type ActivityItem,
@@ -172,21 +177,25 @@ describe("isCommissionAtRisk", () => {
   });
 });
 
-describe("isExhibitionUpcoming", () => {
+describe("isExhibitionRelevant", () => {
   it("is true when start date is within the next 30 days", () => {
-    expect(isExhibitionUpcoming("2026-08-20", null, "2026-08-06")).toBe(true);
+    expect(isExhibitionRelevant("2026-08-20", "2026-09-20", null, "2026-08-06")).toBe(true);
   });
 
-  it("is false when start date is more than 30 days out and no submission deadline", () => {
-    expect(isExhibitionUpcoming("2026-12-01", null, "2026-08-06")).toBe(false);
+  it("is false when start date is more than 30 days out, no submission deadline, and it hasn't started", () => {
+    expect(isExhibitionRelevant("2026-12-01", "2026-12-15", null, "2026-08-06")).toBe(false);
   });
 
   it("is true when submission deadline is within the next 14 days, even if start date is far out", () => {
-    expect(isExhibitionUpcoming("2026-12-01", "2026-08-15", "2026-08-06")).toBe(true);
+    expect(isExhibitionRelevant("2026-12-01", "2026-12-15", "2026-08-15", "2026-08-06")).toBe(true);
   });
 
-  it("is false when both dates are already in the past", () => {
-    expect(isExhibitionUpcoming("2026-07-01", "2026-06-01", "2026-08-06")).toBe(false);
+  it("is true when the exhibition is currently running, even if it started long ago", () => {
+    expect(isExhibitionRelevant("2026-06-01", "2026-09-01", null, "2026-08-06")).toBe(true);
+  });
+
+  it("is false when the exhibition has already ended and no submission deadline is upcoming", () => {
+    expect(isExhibitionRelevant("2026-07-01", "2026-07-15", "2026-06-01", "2026-08-06")).toBe(false);
   });
 });
 
@@ -280,17 +289,19 @@ export function isCommissionAtRisk(
   return deadline <= addDaysIso(todayIso, windowDays);
 }
 
-export function isExhibitionUpcoming(
+export function isExhibitionRelevant(
   startDate: string,
+  endDate: string,
   submissionDeadline: string | null,
   todayIso: string,
 ): boolean {
+  const isRunningNow = startDate <= todayIso && endDate >= todayIso;
   const startsWithinWindow = startDate >= todayIso && startDate <= addDaysIso(todayIso, 30);
   const submissionWithinWindow =
     !!submissionDeadline &&
     submissionDeadline >= todayIso &&
     submissionDeadline <= addDaysIso(todayIso, 14);
-  return startsWithinWindow || submissionWithinWindow;
+  return isRunningNow || startsWithinWindow || submissionWithinWindow;
 }
 
 export function toStatusCounts(
@@ -344,7 +355,7 @@ git commit -m "Add dashboard date-window and aggregation helpers with tests"
 - Modify: `src/components/status-badge.tsx` (export `STATUS_LABELS` for reuse)
 
 **Interfaces:**
-- Consumes: `isCommissionAtRisk`, `isCommissionOverdue`, `isExhibitionUpcoming`, `toStatusCounts`, `mergeRecentActivity`, `type ActivityItem` from `@/lib/dashboard` (Task 2); `customers.createdAt` (Task 1); `STATUS_LABELS` from `@/components/status-badge`.
+- Consumes: `isCommissionAtRisk`, `isCommissionOverdue`, `isExhibitionRelevant`, `toStatusCounts`, `mergeRecentActivity`, `type ActivityItem` from `@/lib/dashboard` (Task 2); `customers.createdAt` (Task 1); `STATUS_LABELS` from `@/components/status-badge`.
 - Produces: route `/dashboard`, the new default landing page after login.
 
 - [ ] **Step 1: Export STATUS_LABELS from status-badge.tsx**
@@ -375,7 +386,7 @@ import { STATUS_LABELS } from "@/components/status-badge";
 import {
   isCommissionAtRisk,
   isCommissionOverdue,
-  isExhibitionUpcoming,
+  isExhibitionRelevant,
   toStatusCounts,
   mergeRecentActivity,
   type ActivityItem,
@@ -445,7 +456,7 @@ export default async function DashboardPage() {
     .sort((a, b) => (a.deadline ?? "").localeCompare(b.deadline ?? ""));
 
   const upcomingExhibitions = allExhibitions
-    .filter((ex) => isExhibitionUpcoming(ex.startDate, ex.submissionDeadline, todayIso))
+    .filter((ex) => isExhibitionRelevant(ex.startDate, ex.endDate, ex.submissionDeadline, todayIso))
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
   const activityItems: ActivityItem[] = [
@@ -516,9 +527,9 @@ export default async function DashboardPage() {
         </section>
 
         <section className="bg-white rounded-card p-4 space-y-3">
-          <h2 className="font-medium text-ink-charcoal">Upcoming exhibitions</h2>
+          <h2 className="font-medium text-ink-charcoal">Exhibitions</h2>
           {upcomingExhibitions.length === 0 && (
-            <p className="text-sm text-slate-gray">No upcoming exhibitions.</p>
+            <p className="text-sm text-slate-gray">No exhibitions right now.</p>
           )}
           <ul className="space-y-2">
             {upcomingExhibitions.map((ex) => (
@@ -584,10 +595,10 @@ In `src/app/(dashboard)/layout.tsx`, add a "Dashboard" link before "Artworks":
 
 - [ ] **Step 5: Verify manually**
 
-Run: `npm run dev`, log in. Expected: redirected to `/dashboard`; page renders four status tiles (all 0 if no artworks exist yet), "No commissions need attention right now.", "No upcoming exhibitions.", "Nothing here yet." Nav bar shows "Dashboard" as the first link. Visit `/artworks`, `/customers`, `/commissions`, `/exhibitions` and confirm nothing else broke.
+Run: `npm run dev`, log in. Expected: redirected to `/dashboard`; page renders four status tiles (all 0 if no artworks exist yet), "No commissions need attention right now.", "No exhibitions right now.", "Nothing here yet." Nav bar shows "Dashboard" as the first link. Visit `/artworks`, `/customers`, `/commissions`, `/exhibitions` and confirm nothing else broke.
 
-Run: `npx tsc --noEmit`
-Expected: no type errors.
+Run: `npm run build`
+Expected: build succeeds with no type errors. (Use `npm run build`, not `npx tsc --noEmit` — this project's `src/app/layout.tsx` uses the Next.js 16 typegen global `LayoutProps<"/">`, which only exists after `.next/types` has been generated by a build/dev run; bare `tsc` won't see it and will report a false error.)
 
 - [ ] **Step 6: Commit**
 
@@ -673,7 +684,7 @@ Create `scripts/seed-sample-data.ts`:
 import { config } from "dotenv";
 import { readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "../src/db";
 import { artworks, commissions, customers, exhibitions, exhibitionArtworks } from "../src/db/schema";
@@ -764,7 +775,10 @@ async function main() {
       console.error(`Failed to upload image for "${spec.title}":`, uploadError.message);
       continue;
     }
-    await db.update(artworks).set({ imagePath: path }).where(eq(artworks.id, row.id));
+    await db
+      .update(artworks)
+      .set({ imagePath: path })
+      .where(and(eq(artworks.id, row.id), eq(artworks.userId, userId)));
     insertedArtworks.push({ ...row, imagePath: path });
     console.log("Created artwork:", spec.title);
   }
@@ -842,8 +856,8 @@ In `package.json`, in the `"scripts"` block, add a new entry next to the existin
 
 - [ ] **Step 3: Verify it compiles**
 
-Run: `npx tsc --noEmit`
-Expected: no type errors.
+Run: `npm run build`
+Expected: build succeeds with no type errors (see the note in Task 3 Step 5 on why `npm run build` is used here instead of bare `tsc`).
 
 - [ ] **Step 4: Commit**
 
@@ -860,7 +874,7 @@ Run: `npm run seed:sample -- saleh.mayada@gmail.com <path-to-images-folder>`
 Expected: console logs "Created artwork" x4, "Created 3 commissions", "Created 2 exhibitions", "Assigned an artwork to Downtown Gallery", "Sample data seed complete."
 
 Then run: `npm run dev`, log in, visit `/dashboard`.
-Expected: status tiles show 1/1/1/1, "Needs attention" shows Alex Rivera's overdue commission in red plus Jordan Blake's upcoming one, "Upcoming exhibitions" shows Downtown Gallery, "Recent activity" lists the newly created artworks/customers/commissions.
+Expected: status tiles show 1/1/1/1, "Needs attention" shows Alex Rivera's overdue commission in red plus Jordan Blake's upcoming one, "Exhibitions" shows Downtown Gallery, "Recent activity" lists the newly created artworks/customers/commissions.
 
 This step is not committed (no code changes) — it's a one-time data operation against the live Supabase project.
 
@@ -872,7 +886,7 @@ Run: `npm run dev`, log in with the real artist account.
 
 1. Confirm you land on `/dashboard` (not `/artworks`).
 2. Confirm the browser tab shows "Artist Studio".
-3. Confirm all four status tiles, "Needs attention", "Upcoming exhibitions", and "Recent activity" render without errors, whether or not sample data has been seeded yet.
+3. Confirm all four status tiles, "Needs attention", "Exhibitions", and "Recent activity" render without errors, whether or not sample data has been seeded yet.
 4. Click through each `Recent activity` link and confirm it lands on the right page.
-5. Click the "Needs attention" and "Upcoming exhibitions" links and confirm they land on `/commissions` and the correct `/exhibitions/[id]` respectively.
+5. Click the "Needs attention" and "Exhibitions" links and confirm they land on `/commissions` and the correct `/exhibitions/[id]` respectively.
 6. Run `npm run build` one final time to confirm the whole app still builds cleanly.
