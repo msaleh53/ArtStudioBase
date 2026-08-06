@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { artworks, printEditions } from "@/db/schema";
 import { PrintEditions } from "./print-editions";
 import { StatusControl } from "./status-control";
+import { EditArtwork } from "./edit-artwork";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ArtworkDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,10 +34,9 @@ export default async function ArtworkDetailPage({ params }: { params: Promise<{ 
         </div>
       )}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-ink-charcoal">{art.title}</h1>
+        <EditArtwork artwork={art} />
         <StatusControl artworkId={art.id} status={art.status} />
       </div>
-      <p className="text-slate-gray">{art.medium} · {art.dimensions} · ${art.price}</p>
       <PrintEditions artworkId={art.id} editions={editions} />
     </main>
   );
