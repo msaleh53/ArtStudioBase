@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "seed:sample": "tsx scripts/seed-sample-data.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
