@@ -25,12 +25,14 @@ export function EditArtwork({ artwork }: { artwork: Artwork }) {
 
   if (!editing) {
     return (
-      <div className="space-y-2">
+      <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-ink-charcoal">{artwork.title}</h1>
           <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Edit</Button>
         </div>
-        <p className="text-slate-gray">{artwork.medium} · {artwork.dimensions} · ${artwork.price}</p>
+        <p className="text-slate-gray">
+          {[artwork.medium, artwork.dimensions, artwork.price ? `$${artwork.price}` : null].filter(Boolean).join(" · ")}
+        </p>
         {artwork.description && <p className="text-ink-charcoal">{artwork.description}</p>}
       </div>
     );
@@ -38,7 +40,7 @@ export function EditArtwork({ artwork }: { artwork: Artwork }) {
 
   return (
     <form
-      className="space-y-3"
+      className="flex-1 min-w-0 space-y-3"
       action={(formData) => startTransition(async () => {
         const result = await updateArtwork(artwork.id, formData);
         if (result.error) {
@@ -52,30 +54,30 @@ export function EditArtwork({ artwork }: { artwork: Artwork }) {
     >
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="space-y-1">
-        <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" defaultValue={artwork.title} required />
+        <Label htmlFor="edit-title">Title</Label>
+        <Input id="edit-title" name="title" defaultValue={artwork.title} required />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label htmlFor="medium">Medium</Label>
-          <Input id="medium" name="medium" defaultValue={artwork.medium ?? ""} />
+          <Label htmlFor="edit-medium">Medium</Label>
+          <Input id="edit-medium" name="medium" defaultValue={artwork.medium ?? ""} />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="dimensions">Dimensions</Label>
-          <Input id="dimensions" name="dimensions" defaultValue={artwork.dimensions ?? ""} />
+          <Label htmlFor="edit-dimensions">Dimensions</Label>
+          <Input id="edit-dimensions" name="dimensions" defaultValue={artwork.dimensions ?? ""} />
         </div>
       </div>
       <div className="space-y-1">
-        <Label htmlFor="price">Price</Label>
-        <Input id="price" name="price" type="number" step="0.01" defaultValue={artwork.price ?? ""} />
+        <Label htmlFor="edit-price">Price</Label>
+        <Input id="edit-price" name="price" type="number" step="0.01" defaultValue={artwork.price ?? ""} />
       </div>
       <div className="space-y-1">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" name="description" defaultValue={artwork.description ?? ""} />
+        <Label htmlFor="edit-description">Description</Label>
+        <Textarea id="edit-description" name="description" defaultValue={artwork.description ?? ""} />
       </div>
       <div className="space-y-1">
-        <Label htmlFor="image">Replace image</Label>
-        <Input id="image" name="image" type="file" accept="image/*" />
+        <Label htmlFor="edit-image">Replace image</Label>
+        <Input id="edit-image" name="image" type="file" accept="image/*" />
       </div>
       <div className="flex gap-2">
         <Button type="submit" disabled={pending} className="rounded-pill">Save</Button>

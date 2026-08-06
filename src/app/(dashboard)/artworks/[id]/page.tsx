@@ -26,14 +26,14 @@ export default async function ArtworkDetailPage({ params }: { params: Promise<{ 
       {art.imagePath && (
         <div className="relative aspect-video rounded-card overflow-hidden">
           <Image
-            src={`${supabaseUrl}/storage/v1/object/public/artwork-images/${art.imagePath}`}
+            src={`${supabaseUrl}/storage/v1/object/public/artwork-images/${art.imagePath}?v=${art.updatedAt.getTime()}`}
             alt={art.title}
             fill
             className="object-cover"
           />
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <EditArtwork artwork={art} />
         <StatusControl artworkId={art.id} status={art.status} />
       </div>

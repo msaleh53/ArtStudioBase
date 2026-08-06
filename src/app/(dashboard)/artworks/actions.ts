@@ -73,15 +73,15 @@ export async function updateArtwork(id: string, formData: FormData) {
     const ext = file.name.split(".").pop();
     const newPath = `${user.id}/${id}/original.${ext}`;
 
-    if (artwork.imagePath && artwork.imagePath !== newPath) {
-      await supabase.storage.from("artwork-images").remove([artwork.imagePath]);
-    }
-
     const { error: uploadError } = await supabase.storage
       .from("artwork-images")
       .upload(newPath, file, { upsert: true });
 
     if (uploadError) return { error: `Upload failed: ${uploadError.message}` };
+
+    if (artwork.imagePath && artwork.imagePath !== newPath) {
+      await supabase.storage.from("artwork-images").remove([artwork.imagePath]);
+    }
 
     imagePath = newPath;
   }
