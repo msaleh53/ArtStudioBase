@@ -15,7 +15,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   if (!customer) notFound();
 
   return (
-    <main className="p-8 max-w-2xl mx-auto space-y-2">
+    <main className="p-4 md:p-8 max-w-2xl mx-auto space-y-2">
       <h1 className="text-2xl font-semibold text-ink-charcoal">{customer.name}</h1>
       <p className="text-slate-gray">{customer.email} · {customer.phone}</p>
       {customer.notes && <p className="text-ink-charcoal">{customer.notes}</p>}

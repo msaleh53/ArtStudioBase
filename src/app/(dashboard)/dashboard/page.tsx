@@ -132,7 +132,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <main className="p-8 max-w-6xl mx-auto space-y-8">
+    <main className="p-4 md:p-8 max-w-6xl mx-auto space-y-8">
       <h1 className="text-2xl font-semibold text-ink-charcoal">Dashboard</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

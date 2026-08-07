@@ -16,7 +16,7 @@ export default async function ArtworksPage() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
   return (
-    <main className="p-8 max-w-6xl mx-auto">
+    <main className="p-4 md:p-8 max-w-6xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Artwork Inventory</h1>
       <UploadForm isFirstUpload={rows.length === 0} />
       {rows.length === 0 && (

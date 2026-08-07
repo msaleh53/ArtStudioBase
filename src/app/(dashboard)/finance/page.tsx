@@ -40,7 +40,7 @@ export default async function FinancePage() {
   }, {} as Record<ExpenseCategory, number>);
 
   return (
-    <main className="p-8 max-w-4xl mx-auto space-y-8">
+    <main className="p-4 md:p-8 max-w-4xl mx-auto space-y-8">
       <h1 className="text-2xl font-semibold text-ink-charcoal">Finance</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
