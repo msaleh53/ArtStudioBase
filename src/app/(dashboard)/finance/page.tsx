@@ -43,7 +43,7 @@ export default async function FinancePage() {
     <main className="p-8 max-w-4xl mx-auto space-y-8">
       <h1 className="text-2xl font-semibold text-ink-charcoal">Finance</h1>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-card p-4">
           <p className="text-sm text-slate-gray">This month&apos;s income</p>
           <p className="text-2xl font-semibold text-ink-charcoal">{formatCurrency(monthIncomeTotal)}</p>
@@ -73,7 +73,7 @@ export default async function FinancePage() {
         </ul>
       </section>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <section className="bg-white rounded-card p-4 space-y-3">
           <h2 className="font-medium text-ink-charcoal">Recent income</h2>
           {recentIncome.length === 0 && <p className="text-sm text-slate-gray">No income logged yet.</p>}
