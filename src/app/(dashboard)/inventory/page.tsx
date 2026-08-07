@@ -26,7 +26,9 @@ export default async function InventoryPage() {
       artworkTitle: artworks.title,
     })
       .from(printEditions)
-      .innerJoin(artworks, eq(printEditions.artworkId, artworks.id))
+      // printEditions.artworkId is always validated at write time to belong to this
+      // user; the userId check on the join below is defense-in-depth.
+      .innerJoin(artworks, and(eq(printEditions.artworkId, artworks.id), eq(artworks.userId, user.id)))
       .where(and(
         eq(printEditions.userId, user.id),
         gt(sql`${printEditions.editionSize} - ${printEditions.soldCount}`, 0),
