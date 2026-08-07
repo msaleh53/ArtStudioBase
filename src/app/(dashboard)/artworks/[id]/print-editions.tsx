@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createPrintEdition, markPrintSold } from "../actions";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -23,25 +24,29 @@ export function PrintEditions({ artworkId, editions }: { artworkId: string; edit
       <h2 className="font-medium text-ink-charcoal">Prints</h2>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <ul className="space-y-2">
-        {editions.map((edition) => (
-          <li key={edition.id} className="flex items-center justify-between bg-white rounded-card p-3">
-            <span className="text-sm text-ink-charcoal">
-              {edition.description} — {edition.soldCount}/{edition.editionSize} sold
-              {edition.price && ` · $${edition.price}`}
-            </span>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={pending || edition.soldCount >= edition.editionSize}
-              onClick={() => startTransition(async () => {
-                const result = await markPrintSold(edition.id);
-                setError(result.error ?? null);
-              })}
-            >
-              Mark one sold
-            </Button>
-          </li>
-        ))}
+        {editions.map((edition) => {
+          const soldOut = edition.soldCount >= edition.editionSize;
+          return (
+            <li key={edition.id} className="flex items-center justify-between bg-white rounded-card p-3">
+              <span className="flex items-center gap-2 text-sm text-ink-charcoal">
+                {edition.description} — {edition.soldCount}/{edition.editionSize} sold
+                {edition.price && ` · $${edition.price}`}
+                {soldOut && <Badge className="bg-electric-cobalt text-white">Sold out</Badge>}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={pending || soldOut}
+                onClick={() => startTransition(async () => {
+                  const result = await markPrintSold(edition.id);
+                  setError(result.error ?? null);
+                })}
+              >
+                Mark one sold
+              </Button>
+            </li>
+          );
+        })}
       </ul>
       <form
         action={(formData) => startTransition(async () => {

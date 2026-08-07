@@ -71,7 +71,9 @@ export default async function InventoryPage() {
           <h2 className="font-medium text-ink-charcoal">Materials</h2>
           <Link href="/inventory/materials" className="text-sm text-electric-cobalt">Manage materials</Link>
         </div>
-        {materialRows.length === 0 && <p className="text-sm text-slate-gray">No materials tracked yet.</p>}
+        {materialRows.length === 0 && (
+          <p className="text-sm text-slate-gray">No materials tracked yet — add paint, canvas, or framing stock to start logging usage.</p>
+        )}
         <ul className="space-y-1">
           {materialRows.map((m) => (
             <li key={m.id} className="flex justify-between text-sm">

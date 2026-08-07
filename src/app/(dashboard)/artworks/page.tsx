@@ -18,7 +18,7 @@ export default async function ArtworksPage() {
   return (
     <main className="p-8 max-w-6xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Artwork Inventory</h1>
-      <UploadForm />
+      <UploadForm isFirstUpload={rows.length === 0} />
       {rows.length === 0 && (
         <p className="text-sm text-slate-gray mb-6">No artworks yet — upload your first piece above.</p>
       )}

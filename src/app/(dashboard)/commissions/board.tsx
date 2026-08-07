@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { updateCommissionStage, updateProgressNotes } from "./actions";
 import type { CommissionStage } from "@/db/schema";
 
@@ -25,13 +25,44 @@ export function Board({ commissions }: { commissions: Commission[] }) {
   const isOverdue = (c: Commission) =>
     c.deadline && c.stage !== "delivered" && new Date(c.deadline) < new Date();
 
+  const prevStagesRef = useRef<Map<string, CommissionStage>>(new Map());
+  const [justDelivered, setJustDelivered] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const newlyDelivered: string[] = [];
+    for (const c of commissions) {
+      const prevStage = prevStagesRef.current.get(c.id);
+      if (prevStage && prevStage !== "delivered" && c.stage === "delivered") {
+        newlyDelivered.push(c.id);
+      }
+      prevStagesRef.current.set(c.id, c.stage);
+    }
+    if (newlyDelivered.length === 0) return;
+    setJustDelivered((prev) => new Set([...prev, ...newlyDelivered]));
+    const timeout = setTimeout(() => {
+      setJustDelivered((prev) => {
+        const next = new Set(prev);
+        newlyDelivered.forEach((id) => next.delete(id));
+        return next;
+      });
+    }, 600);
+    return () => clearTimeout(timeout);
+  }, [commissions]);
+
   return (
     <div className="grid grid-cols-5 gap-4">
       {STAGES.map((stage) => (
         <div key={stage.key} className="space-y-3">
           <h2 className="font-medium text-ink-charcoal text-sm">{stage.label}</h2>
           {commissions.filter((c) => c.stage === stage.key).map((c) => (
-            <div key={c.id} className="bg-white rounded-card p-3 space-y-2">
+            <div
+              key={c.id}
+              className={`rounded-card p-3 space-y-2 transition-colors duration-500 ${
+                justDelivered.has(c.id)
+                  ? "bg-cobalt-wash motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:duration-300"
+                  : "bg-white"
+              }`}
+            >
               <p className="font-medium text-sm">{c.customerName}</p>
               {c.deadline && (
                 <p className={`text-xs ${isOverdue(c) ? "text-attention" : "text-slate-gray"}`}>
