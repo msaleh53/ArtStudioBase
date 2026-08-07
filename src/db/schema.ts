@@ -104,3 +104,22 @@ export const expenses = pgTable("expenses", {
   receiptPath: text("receipt_path"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const materials = pgTable("materials", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  name: text("name").notNull(),
+  unit: text("unit").notNull(),
+  quantity: numeric("quantity").notNull().default("0"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const materialLogs = pgTable("material_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull(),
+  materialId: uuid("material_id").notNull().references(() => materials.id),
+  date: date("date").notNull(),
+  change: numeric("change").notNull(),
+  note: text("note"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
