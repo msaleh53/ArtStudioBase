@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { materials, materialLogs } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -13,16 +13,33 @@ export async function createMaterial(formData: FormData) {
 
   const name = formData.get("name") as string;
   const unit = formData.get("unit") as string;
-  const quantity = (formData.get("quantity") as string) || "0";
+  const quantityRaw = ((formData.get("quantity") as string) || "0").trim() || "0";
 
   if (!name) return { error: "Name is required" };
   if (!unit) return { error: "Unit is required" };
 
-  await db.insert(materials).values({
-    userId: user.id,
-    name,
-    unit,
-    quantity,
+  const quantity = Number(quantityRaw);
+  if (!Number.isFinite(quantity) || quantity < 0) {
+    return { error: "Starting quantity must be a non-negative number" };
+  }
+
+  await db.transaction(async (tx) => {
+    const [material] = await tx.insert(materials).values({
+      userId: user.id,
+      name,
+      unit,
+      quantity: quantityRaw,
+    }).returning();
+
+    if (quantity > 0) {
+      await tx.insert(materialLogs).values({
+        userId: user.id,
+        materialId: material.id,
+        date: new Date().toISOString().slice(0, 10),
+        change: quantityRaw,
+        note: "Opening balance",
+      });
+    }
   });
 
   revalidatePath("/inventory");
@@ -45,7 +62,7 @@ export async function logMaterialChange(formData: FormData) {
   if (!changeRaw) return { error: "Change amount is required" };
 
   const change = Number(changeRaw);
-  if (Number.isNaN(change) || change === 0) {
+  if (!Number.isFinite(change) || change === 0) {
     return { error: "Change must be a non-zero number" };
   }
 
@@ -65,7 +82,8 @@ export async function logMaterialChange(formData: FormData) {
       change: changeRaw,
       note,
     });
-    await tx.update(materials).set({ quantity: newQuantity.toString() })
+    await tx.update(materials)
+      .set({ quantity: sql`${materials.quantity} + ${changeRaw}::numeric` })
       .where(and(eq(materials.id, materialId), eq(materials.userId, user.id)));
 
     return {};
