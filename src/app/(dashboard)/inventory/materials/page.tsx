@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { materials, materialLogs } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +16,7 @@ export default async function MaterialsPage() {
   const materialsWithLogs = await Promise.all(
     materialRows.map(async (m) => {
       const logs = await db.select().from(materialLogs)
-        .where(eq(materialLogs.materialId, m.id))
+        .where(and(eq(materialLogs.materialId, m.id), eq(materialLogs.userId, user.id)))
         .orderBy(desc(materialLogs.date)).limit(5);
       return { ...m, logs };
     }),
