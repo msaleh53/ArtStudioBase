@@ -49,14 +49,15 @@ export async function logMaterialChange(formData: FormData) {
     return { error: "Change must be a non-zero number" };
   }
 
-  const [material] = await db.select().from(materials)
-    .where(and(eq(materials.id, materialId), eq(materials.userId, user.id)));
-  if (!material) return { error: "Material not found" };
+  const result = await db.transaction(async (tx) => {
+    const [material] = await tx.select().from(materials)
+      .where(and(eq(materials.id, materialId), eq(materials.userId, user.id)))
+      .for("update");
+    if (!material) return { error: "Material not found" };
 
-  const newQuantity = Number(material.quantity) + change;
-  if (newQuantity < 0) return { error: `Not enough ${material.name} in stock` };
+    const newQuantity = Number(material.quantity) + change;
+    if (newQuantity < 0) return { error: `Not enough ${material.name} in stock` };
 
-  await db.transaction(async (tx) => {
     await tx.insert(materialLogs).values({
       userId: user.id,
       materialId,
@@ -66,7 +67,11 @@ export async function logMaterialChange(formData: FormData) {
     });
     await tx.update(materials).set({ quantity: newQuantity.toString() })
       .where(and(eq(materials.id, materialId), eq(materials.userId, user.id)));
+
+    return {};
   });
+
+  if (result.error) return result;
 
   revalidatePath("/inventory");
   revalidatePath("/inventory/materials");
