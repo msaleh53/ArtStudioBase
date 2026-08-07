@@ -26,6 +26,10 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Money",
     items: [{ href: "/finance", label: "Finance" }],
   },
+  {
+    label: "Inventory",
+    items: [{ href: "/inventory", label: "Inventory" }],
+  },
 ];
 
 function isActive(pathname: string, href: string): boolean {
