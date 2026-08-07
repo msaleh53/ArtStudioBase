@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type NavItem = { href: string; label: string };
-type NavGroup = { label: string; items: NavItem[] };
+export type NavItem = { href: string; label: string };
+export type NavGroup = { label: string; items: NavItem[] };
 
-const NAV_GROUPS: NavGroup[] = [
+export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Studio",
     items: [
