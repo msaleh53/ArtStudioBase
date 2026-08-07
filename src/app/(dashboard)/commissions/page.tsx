@@ -24,7 +24,7 @@ export default async function CommissionsPage() {
     .where(and(eq(commissions.userId, user.id), eq(customers.userId, user.id)));
 
   return (
-    <main className="p-8 max-w-7xl mx-auto">
+    <main className="p-4 md:p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Commissions</h1>
       <NewCommissionForm customers={customerRows} />
       {commissionRows.length === 0 && (

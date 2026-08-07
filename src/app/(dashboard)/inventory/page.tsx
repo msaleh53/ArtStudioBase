@@ -38,7 +38,7 @@ export default async function InventoryPage() {
   ]);
 
   return (
-    <main className="p-8 max-w-4xl mx-auto space-y-8">
+    <main className="p-4 md:p-8 max-w-4xl mx-auto space-y-8">
       <h1 className="text-2xl font-semibold text-ink-charcoal">Inventory</h1>
 
       <section className="bg-white rounded-card p-4 space-y-3">

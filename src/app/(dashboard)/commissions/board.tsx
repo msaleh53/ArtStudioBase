@@ -50,9 +50,9 @@ export function Board({ commissions }: { commissions: Commission[] }) {
   }, [commissions]);
 
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-2 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
       {STAGES.map((stage) => (
-        <div key={stage.key} className="space-y-3">
+        <div key={stage.key} className="min-w-[85%] shrink-0 snap-center space-y-3 md:min-w-0 md:shrink md:snap-align-none">
           <h2 className="font-medium text-ink-charcoal text-sm">{stage.label}</h2>
           {commissions.filter((c) => c.stage === stage.key).map((c) => (
             <div

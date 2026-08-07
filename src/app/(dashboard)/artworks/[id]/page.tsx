@@ -22,7 +22,7 @@ export default async function ArtworkDetailPage({ params }: { params: Promise<{ 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
   return (
-    <main className="p-8 max-w-3xl mx-auto space-y-6">
+    <main className="p-4 md:p-8 max-w-3xl mx-auto space-y-6">
       {art.imagePath && (
         <div className="relative aspect-video rounded-card overflow-hidden">
           <Image

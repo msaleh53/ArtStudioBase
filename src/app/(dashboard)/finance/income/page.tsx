@@ -29,7 +29,7 @@ export default async function IncomePage() {
     .orderBy(desc(income.date));
 
   return (
-    <main className="p-8 max-w-3xl mx-auto">
+    <main className="p-4 md:p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6 text-ink-charcoal">Income</h1>
       <NewIncomeForm artworks={artworkRows} />
       <ul className="space-y-2">
