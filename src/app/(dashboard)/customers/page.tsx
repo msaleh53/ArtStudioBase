@@ -22,7 +22,10 @@ export default async function CustomersPage() {
       <ul className="space-y-2">
         {rows.map((c) => (
           <li key={c.id}>
-            <Link href={`/customers/${c.id}`} className="block bg-white rounded-card p-4">
+            <Link
+              href={`/customers/${c.id}`}
+              className="block bg-white rounded-card p-4 transition-[box-shadow,transform] duration-200 hover:shadow-lg active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+            >
               <p className="font-medium text-ink-charcoal">{c.name}</p>
               <p className="text-sm text-slate-gray">{c.email} {c.phone}</p>
             </Link>

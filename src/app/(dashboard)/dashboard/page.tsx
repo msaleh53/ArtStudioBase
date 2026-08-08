@@ -153,7 +153,10 @@ export default async function DashboardPage() {
           <ul className="space-y-2">
             {atRiskCommissions.map((c) => (
               <li key={c.id}>
-                <Link href="/commissions" className="block text-sm">
+                <Link
+                  href="/commissions"
+                  className="block text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+                >
                   <span className="text-ink-charcoal">{c.customerName}</span>{" "}
                   <span
                     className={isCommissionOverdue(c.deadline, c.stage, todayIso) ? "text-attention" : "text-slate-gray"}
@@ -181,7 +184,10 @@ export default async function DashboardPage() {
                 daysUntilDeadline !== null && daysUntilDeadline >= 0 && daysUntilDeadline <= 14;
               return (
                 <li key={ex.id}>
-                  <Link href={`/exhibitions/${ex.id}`} className="block text-sm">
+                  <Link
+                    href={`/exhibitions/${ex.id}`}
+                    className="block text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+                  >
                     <span className="text-ink-charcoal">{ex.galleryName}</span>{" "}
                     <span className="text-slate-gray">
                       {deadlineIsSoon
@@ -204,7 +210,10 @@ export default async function DashboardPage() {
         <ul className="space-y-2">
           {recentActivity.map((item) => (
             <li key={`${item.type}-${item.id}`}>
-              <Link href={item.href} className="flex items-center gap-3 text-sm">
+              <Link
+                href={item.href}
+                className="flex items-center gap-3 text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+              >
                 {item.type === "artwork" && item.imagePath && item.updatedAt && (
                   <span className="relative w-9 h-9 shrink-0 rounded overflow-hidden bg-canvas-cream">
                     <Image

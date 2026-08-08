@@ -49,7 +49,10 @@ export default async function InventoryPage() {
         <ul className="space-y-1">
           {unsoldOriginals.map((a) => (
             <li key={a.id}>
-              <Link href={`/artworks/${a.id}`} className="flex justify-between text-sm">
+              <Link
+                href={`/artworks/${a.id}`}
+                className="flex justify-between text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+              >
                 <span className="text-ink-charcoal">{a.title}</span>
                 <span className="text-slate-gray capitalize">{a.status}</span>
               </Link>
@@ -57,7 +60,10 @@ export default async function InventoryPage() {
           ))}
           {editionsWithStock.map((e) => (
             <li key={e.id}>
-              <Link href={`/artworks/${e.artworkId}`} className="flex justify-between text-sm">
+              <Link
+                href={`/artworks/${e.artworkId}`}
+                className="flex justify-between text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+              >
                 <span className="text-ink-charcoal">{e.artworkTitle}{e.description && ` · ${e.description}`}</span>
                 <span className="text-slate-gray">{e.editionSize - e.soldCount} of {e.editionSize} remaining</span>
               </Link>
@@ -69,7 +75,12 @@ export default async function InventoryPage() {
       <section className="bg-white rounded-card p-4 space-y-3">
         <div className="flex justify-between items-center">
           <h2 className="font-medium text-ink-charcoal">Materials</h2>
-          <Link href="/inventory/materials" className="text-sm text-electric-cobalt">Manage materials</Link>
+          <Link
+            href="/inventory/materials"
+            className="text-sm text-electric-cobalt px-2 py-1 -mx-2 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+          >
+            Manage materials
+          </Link>
         </div>
         {materialRows.length === 0 && (
           <p className="text-sm text-slate-gray">No materials tracked yet — add paint, canvas, or framing stock to start logging usage.</p>

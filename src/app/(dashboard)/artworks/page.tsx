@@ -27,7 +27,7 @@ export default async function ArtworksPage() {
           <Link
             key={art.id}
             href={`/artworks/${art.id}`}
-            className="bg-white rounded-card overflow-hidden block group transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none"
+            className="bg-white rounded-card overflow-hidden block group transition-[box-shadow,transform] duration-200 hover:shadow-lg active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             {art.imagePath && (
               <div className="relative aspect-square overflow-hidden">

@@ -80,7 +80,10 @@ export default async function FinancePage() {
           <ul className="space-y-2">
             {recentIncome.map((r) => (
               <li key={r.id}>
-                <Link href="/finance/income" className="block text-sm">
+                <Link
+                  href="/finance/income"
+                  className="block text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+                >
                   <span className="text-ink-charcoal">{formatCurrency(r.amount)}</span>{" "}
                   <span className="text-slate-gray">{r.description}</span>
                 </Link>
@@ -94,7 +97,10 @@ export default async function FinancePage() {
           <ul className="space-y-2">
             {recentExpenses.map((r) => (
               <li key={r.id}>
-                <Link href="/finance/expenses" className="block text-sm">
+                <Link
+                  href="/finance/expenses"
+                  className="block text-sm -mx-2 px-2 py-1 rounded-md transition-[background-color,transform] duration-150 hover:bg-canvas-cream active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+                >
                   <span className="text-ink-charcoal">{formatCurrency(r.amount)}</span>{" "}
                   <span className="text-slate-gray">{EXPENSE_CATEGORY_LABELS[r.category]}</span>
                 </Link>

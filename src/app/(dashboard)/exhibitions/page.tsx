@@ -22,7 +22,10 @@ export default async function ExhibitionsPage() {
       <ul className="space-y-2">
         {rows.map((ex) => (
           <li key={ex.id}>
-            <Link href={`/exhibitions/${ex.id}`} className="block bg-white rounded-card p-4">
+            <Link
+              href={`/exhibitions/${ex.id}`}
+              className="block bg-white rounded-card p-4 transition-[box-shadow,transform] duration-200 hover:shadow-lg active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+            >
               <p className="font-medium text-ink-charcoal">{ex.galleryName}</p>
               <p className="text-sm text-slate-gray">{ex.startDate} – {ex.endDate}</p>
             </Link>
