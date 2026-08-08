@@ -25,7 +25,9 @@ function findItem(href: string): NavItem | undefined {
   return undefined;
 }
 
-const clientsGroup = NAV_GROUPS.find((g) => g.label === "Clients");
+const relationsItems = NAV_GROUPS.filter((g) => g.label === "Clients" || g.label === "Exhibitions").flatMap(
+  (g) => g.items,
+);
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -36,46 +38,49 @@ export function BottomTabBar({ logoutAction }: { logoutAction: () => Promise<voi
   const [clientsOpen, setClientsOpen] = useState(false);
 
   const [dashboardItem, artworksItem, financeItem, inventoryItem] = STANDALONE_HREFS.map(findItem);
-  const clientsActive = clientsGroup ? clientsGroup.items.some((i) => isActive(pathname, i.href)) : false;
+  const clientsActive = relationsItems.some((i) => isActive(pathname, i.href));
 
   return (
     <>
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-hairline flex items-stretch h-16">
         {dashboardItem && <TabLink item={dashboardItem} active={isActive(pathname, dashboardItem.href)} />}
         {artworksItem && <TabLink item={artworksItem} active={isActive(pathname, artworksItem.href)} />}
-        {clientsGroup && (
+        {relationsItems.length > 0 && (
           <button
             type="button"
             onClick={() => setClientsOpen(true)}
             aria-current={clientsActive ? "page" : undefined}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium ${
-              clientsActive ? "text-electric-cobalt" : "text-ink-charcoal"
+            className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100 ${
+              clientsActive ? "bg-cobalt-wash text-deep-cobalt" : "text-ink-charcoal"
             }`}
           >
+            {clientsActive && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-electric-cobalt" />
+            )}
             <Users className="size-5" />
-            Clients
+            Relations
           </button>
         )}
         {financeItem && <TabLink item={financeItem} active={isActive(pathname, financeItem.href)} />}
         {inventoryItem && <TabLink item={inventoryItem} active={isActive(pathname, inventoryItem.href)} />}
       </nav>
 
-      {clientsGroup && (
+      {relationsItems.length > 0 && (
         <Dialog open={clientsOpen} onOpenChange={setClientsOpen}>
           <DialogContent
             showCloseButton
             className="inset-x-0 left-0 bottom-0 top-auto w-full max-w-none translate-x-0 translate-y-0 rounded-b-none rounded-t-xl sm:max-w-none"
           >
             <DialogHeader>
-              <DialogTitle>Clients</DialogTitle>
+              <DialogTitle>Relations</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-1">
-              {clientsGroup.items.map((item) => (
+              {relationsItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setClientsOpen(false)}
-                  className="px-3 py-2 rounded-md text-sm font-medium text-ink-charcoal hover:bg-canvas-cream"
+                  className="px-3 py-2 rounded-md text-sm font-medium text-ink-charcoal hover:bg-canvas-cream active:scale-[0.98] transition-[background-color,transform] duration-150 motion-reduce:transition-none motion-reduce:active:scale-100"
                 >
                   {item.label}
                 </Link>
@@ -100,10 +105,13 @@ function TabLink({ item, active }: { item: NavItem; active: boolean }) {
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium ${
-        active ? "text-electric-cobalt" : "text-ink-charcoal"
+      className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-transform duration-150 active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100 ${
+        active ? "bg-cobalt-wash text-deep-cobalt" : "text-ink-charcoal"
       }`}
     >
+      {active && (
+        <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-electric-cobalt" />
+      )}
       <Icon className="size-5" />
       {item.label}
     </Link>

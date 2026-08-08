@@ -17,8 +17,8 @@ Artist Studio operates in a sunlit, cream-warm workspace language: a soft #faf9f
 | Ink Charcoal | `#121722` | `--color-ink-charcoal` | Primary text, headings, icons — near-black with a cool blue undertone (17.9:1 on white) |
 | Deep Ink | `#1d1d1d` | `--color-deep-ink` | Secondary text, dark surface fills for footer or dark mode moments |
 | Mid Graphite | `#2d2d2d` | `--color-mid-graphite` | Dark surface for dark UI moments (footer dark blocks, modal overlays) |
-| Slate Gray | `#777c86` | `--color-slate-gray` | Secondary body text, card metadata, table labels |
-| Steel Gray | `#a5a5a5` | `--color-steel-gray` | Muted helper text, placeholder text, disabled states |
+| Slate Gray | `#64748b` | `--color-slate-gray` | Secondary body text, card metadata, table labels — darkened from the original #777c86 to clear WCAG AA 4.5:1 on white |
+| Steel Gray | `#6b7280` | `--color-steel-gray` | Muted helper text, sidebar section labels — darkened from the original #a5a5a5 (2.5:1) to clear WCAG AA 4.5:1 on white |
 | Hairline | `#efefef` | `--color-hairline` | Borders and dividers — barely-there separation between cards and sections |
 | Faint Gray | `#cccccc` | `--color-faint-gray` | Icon strokes in nav, subdued borders on neutral controls |
 | Electric Cobalt | `#0068f9` | `--color-electric-cobalt` | Violet supporting accent for decorative details and low-frequency emphasis. Do not promote it to the primary CTA color |
@@ -119,11 +119,28 @@ Color #0074dd or #0068f9, no underline by default, underline on hover. Weight 50
 ### Sidebar Navigation
 **Role:** Primary app navigation
 
-Fixed 220px left sidebar, background #ffffff, 1px right border in #efefef. A plain-text wordmark sits at the top. Below it, links are grouped under small-caps section labels (Studio, Clients, Money) in #a5a5a5. The active route gets a light cobalt-wash background (#e6f0ff), cobalt text (#0068f9), and a 2px cobalt bar on its left edge — every other link is plain #121722 text with no background. A "Log out" ghost-pill button sits at the bottom of the sidebar.
+Fixed 220px left sidebar, background #ffffff, 1px right border in #efefef. A plain-text "Studio" wordmark sits at the top. Below it, links are grouped under small-caps section labels (Work, Clients, Exhibitions, Money, Inventory) in #6b7280 — the first group is named "Work" rather than "Studio" so it doesn't echo the wordmark directly above it, and "Exhibitions" is its own group rather than filed under "Clients" since a gallery/venue relationship isn't a customer relationship. On mobile, Clients and Exhibitions collapse into one "Relations" tab/sheet to keep the bottom tab bar at 5 items. The active route gets a light cobalt-wash background (#e6f0ff), deep cobalt text (#024bb1 — darker than the standard electric cobalt to clear WCAG AA 4.5:1 against the light wash), and a 2px cobalt bar on its left edge — every other link is plain #121722 text with no background. A "Log out" ghost-pill button sits at the bottom of the sidebar.
+
+### Bottom Tab Bar (mobile)
+**Role:** Primary app navigation below the `md` breakpoint, replacing the sidebar
+
+Fixed-height (64px) bar pinned to the bottom of the viewport, background #ffffff, 1px top border in #efefef. Five icon+label tabs, each `flex-1`. The active tab mirrors the sidebar's active-state language rather than color alone: cobalt-wash background (#e6f0ff), deep cobalt icon/label (#024bb1), and a 2px cobalt bar centered along the tab's top edge — inactive tabs are plain #121722 icon/label with no background. One tab ("Relations") opens a bottom sheet listing the Clients + Exhibitions links instead of navigating directly.
+
+### Loading States (skeleton)
+**Role:** Instant feedback that a route change is in progress, shown while server data loads
+
+Every dashboard route has a `loading.tsx` file that Next.js streams in immediately on navigation, before the real data resolves. Skeletons use the shared `Skeleton` primitive (`animate-pulse`, `bg-hairline` #efefef, respects `motion-reduce`) shaped to mirror the real content's layout — same card boundaries, same grid, same approximate line lengths — so nothing shifts when real content swaps in. This is the primary "something happened" signal for navigation, since Next.js can show it even before client-side prefetch has resolved.
+
+### Click / Press Feedback
+**Role:** Immediate tactile acknowledgment that a click landed, independent of how long navigation takes
+
+Every navigable row, card, and nav link responds to press with `active:scale-[0.97–0.98]` (or `active:translate-y-px` on pill buttons, matching the existing Button component) over 150ms, plus a hover treatment appropriate to the element: cards get `hover:shadow-lg`, bare list rows and nav links get `hover:bg-canvas-cream`. All motion is wrapped in `motion-reduce:transition-none motion-reduce:active:scale-100` so it drops out cleanly under reduced-motion preferences. This applies uniformly across the sidebar, mobile tab bar, and every list-row Link in the app — no plain-text link should be silent on click.
 
 ## Do's and Don'ts
 
 ### Do
+- Give every new route a `loading.tsx` skeleton shaped to match its real layout — never let navigation go silent while data loads
+- Give every new navigable Link an `active:scale` press state plus an appropriate hover treatment — never ship a bare, feedback-less link
 - Use #faf9f7 as the page background — never substitute pure #ffffff for the canvas
 - Apply the 48px pill radius to all buttons and the 16px radius to all cards
 - Set primary action buttons to #0068f9 fill with #ffffff text at weight 500, 15–16px
@@ -168,16 +185,16 @@ Sidebar + content shell: a fixed 220px sidebar on the left, page content to the 
 - background: #faf9f7
 - card surface: #fbfaf7 or #ffffff
 - border: #efefef
-- muted text: #777c86 or #a5a5a5
+- muted text: #64748b or #6b7280
 - primary action: no distinct CTA color
 - attention/overdue: #b3541e
 - active nav background: #e6f0ff
 
 **Example Component Prompts**
-1. **Sidebar nav item (active)**: Background #e6f0ff, text #0068f9 weight 600, 8px padding, small-radius corners. 2px cobalt bar on the left edge, vertically centered, rounded ends.
+1. **Sidebar nav item (active)**: Background #e6f0ff, text #024bb1 weight 600, 8px padding, small-radius corners. 2px cobalt bar on the left edge, vertically centered, rounded ends.
 2. **Sidebar nav item (inactive)**: Background transparent, text #121722 weight 500. On hover, background #faf9f7.
 3. **Artwork gallery card**: Background #ffffff, 16px radius, square image at top (`object-cover`), title + medium/dimensions + status badge below in 24px padding. On hover: soft shadow lift, image scales ~3%.
-4. **Stat tile**: Background #ffffff, 16px radius, 16px padding. Label at 14px #777c86, value at 24px weight 600 #121722, formatted as currency with two decimals where the value is a dollar amount.
+4. **Stat tile**: Background #ffffff, 16px radius, 16px padding. Label at 14px #64748b, value at 24px weight 600 #121722, formatted as currency with two decimals where the value is a dollar amount.
 
 ## Radius Language
 
@@ -202,8 +219,8 @@ Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px dr
   --color-ink-charcoal: #121722;
   --color-deep-ink: #1d1d1d;
   --color-mid-graphite: #2d2d2d;
-  --color-slate-gray: #777c86;
-  --color-steel-gray: #a5a5a5;
+  --color-slate-gray: #64748b;
+  --color-steel-gray: #6b7280;
   --color-hairline: #efefef;
   --color-faint-gray: #cccccc;
   --color-electric-cobalt: #0068f9;
@@ -305,8 +322,8 @@ Shadows are nearly invisible by design. Cards use a 3-layer micro-shadow (1px dr
   --color-ink-charcoal: #121722;
   --color-deep-ink: #1d1d1d;
   --color-mid-graphite: #2d2d2d;
-  --color-slate-gray: #777c86;
-  --color-steel-gray: #a5a5a5;
+  --color-slate-gray: #64748b;
+  --color-steel-gray: #6b7280;
   --color-hairline: #efefef;
   --color-faint-gray: #cccccc;
   --color-electric-cobalt: #0068f9;

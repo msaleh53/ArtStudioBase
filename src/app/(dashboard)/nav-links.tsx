@@ -8,7 +8,7 @@ export type NavGroup = { label: string; items: NavItem[] };
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Studio",
+    label: "Work",
     items: [
       { href: "/dashboard", label: "Dashboard" },
       { href: "/artworks", label: "Artworks" },
@@ -19,8 +19,11 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/customers", label: "Customers" },
       { href: "/commissions", label: "Commissions" },
-      { href: "/exhibitions", label: "Exhibitions" },
     ],
+  },
+  {
+    label: "Exhibitions",
+    items: [{ href: "/exhibitions", label: "Exhibitions" }],
   },
   {
     label: "Money",
@@ -54,9 +57,9 @@ export function NavLinks() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative px-3 py-2 rounded-md text-sm font-medium ${
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-[background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 ${
                     active
-                      ? "bg-cobalt-wash text-electric-cobalt"
+                      ? "bg-cobalt-wash text-deep-cobalt"
                       : "text-ink-charcoal hover:bg-canvas-cream"
                   }`}
                 >
